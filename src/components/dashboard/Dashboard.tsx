@@ -1,94 +1,118 @@
 'use client'
 
-import { useState } from 'react'
 import { useQuery } from '@apollo/client'
+import { useEffect } from 'react'
 import {
   KuruOrderBook_Trade,
-  KuruDeployer_PumpingTime,
-  WormholeRelayer_Combined,
   AprMonTVL1D,
+  NadFun_Combined,
+  Monorail_Pools,
+  Monorail_SwapEvent,
 } from '@/lib/graphql/queries'
-import PoolTable from './PoolTable'
-import PumpingTimeTable from './PumpingTimeTable'
-import InteroperabilityTable from './InteroperabilityTable'
 import StakingTable from './StakingTable'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import DegenTable from './DegenTable'
+import MonorailTable from './MonorailTable'
+import MultiTVLDashboard from '@/components/visualizations/MultiTVLDashboard'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
 import {
-  RefreshCw,
-  Search,
   Activity,
-  Rocket,
-  Globe,
   TrendingUp,
+  Zap,
+  Droplets,
+  Heart,
+  Shuffle,
+  Moon,
+  Sun,
+  Github,
 } from 'lucide-react'
+import ClobTable from './ClobTable'
+import DexTable from './DexTable'
 
 export default function Dashboard() {
-  const [searchTerm, setSearchTerm] = useState('')
+  // Simple dark mode toggle using Tailwind's built-in system
+  const toggleTheme = () => {
+    document.documentElement.classList.toggle('dark')
+  }
 
   const {
     data: orderBookData,
     loading: orderBookLoading,
     error: orderBookError,
+    startPolling: orderBookStartPolling,
   } = useQuery(KuruOrderBook_Trade)
-
-  const {
-    data: pumpingTimeData,
-    loading: pumpingTimeLoading,
-    error: pumpingTimeError,
-  } = useQuery(KuruDeployer_PumpingTime)
-
-  const {
-    data: interoperabilityData,
-    loading: interoperabilityLoading,
-    error: interoperabilityError,
-  } = useQuery(WormholeRelayer_Combined)
 
   const {
     data: stakingData,
     loading: stakingLoading,
     error: stakingError,
+    startPolling: stakingStartPolling,
   } = useQuery(AprMonTVL1D)
 
-  console.log('Order Book Data:', orderBookData)
-  console.log('Loading:', orderBookLoading)
-  console.log('Error:', orderBookError)
-  console.log('Pumping Time Data:', pumpingTimeData)
-  console.log('Pumping Time Loading:', pumpingTimeLoading)
-  console.log('Pumping Time Error:', pumpingTimeError)
-  console.log('Interoperability Data:', interoperabilityData)
-  console.log('Interoperability Loading:', interoperabilityLoading)
-  console.log('Interoperability Error:', interoperabilityError)
-  console.log('Staking Data:', stakingData)
-  console.log('Staking Loading:', stakingLoading)
-  console.log('Staking Error:', stakingError)
+  const {
+    data: degenData,
+    loading: degenLoading,
+    error: degenError,
+    startPolling: degenStartPolling,
+  } = useQuery(NadFun_Combined)
 
-  const formatNumber = (num: number) => {
-    if (num >= 1e12) {
-      return `$${(num / 1e12).toFixed(2)}T`
-    } else if (num >= 1e9) {
-      return `$${(num / 1e9).toFixed(2)}B`
-    } else if (num >= 1e6) {
-      return `$${(num / 1e6).toFixed(2)}M`
-    }
-    return `$${num.toFixed(2)}`
-  }
+  const {
+    data: monorailData,
+    loading: monorailLoading,
+    error: monorailError,
+    startPolling: monorailStartPolling,
+  } = useQuery(Monorail_Pools)
+
+  const {
+    data: monorailDexData,
+    loading: monorailDexLoading,
+    error: monorailDexError,
+    startPolling: monorailDexStartPolling,
+  } = useQuery(Monorail_SwapEvent)
 
   const isLoading =
     orderBookLoading ||
-    pumpingTimeLoading ||
-    interoperabilityLoading ||
-    stakingLoading
+    stakingLoading ||
+    degenLoading ||
+    monorailLoading ||
+    monorailDexLoading
   const hasError =
-    orderBookError || pumpingTimeError || interoperabilityError || stakingError
+    orderBookError ||
+    stakingError ||
+    degenError ||
+    monorailError ||
+    monorailDexError
+
+  useEffect(() => {
+    orderBookStartPolling(3000)
+    stakingStartPolling(3000)
+    degenStartPolling(3000)
+    monorailStartPolling(3000)
+    monorailDexStartPolling(3000)
+  }, [
+    orderBookStartPolling,
+    stakingStartPolling,
+    degenStartPolling,
+    monorailStartPolling,
+    monorailDexStartPolling,
+  ])
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading Kuru Protocol data...</p>
+      <div className="min-h-screen w-full flex items-center justify-center geometric-pattern">
+        <div className="text-center space-y-4">
+          <div className="relative">
+            <div className="w-16 h-16 bg-gradient-to-br from-accent via-primary to-secondary rounded-2xl flex items-center justify-center shadow-2xl mx-auto">
+              <Activity className="w-8 h-8 text-primary-foreground animate-pulse" />
+            </div>
+            <div className="absolute -inset-2 bg-gradient-to-r from-accent/20 to-secondary/20 rounded-2xl blur-lg opacity-60 animate-pulse-glow"></div>
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-display text-gradient">Loading...</h2>
+            <p className="text-muted-foreground">
+              Fetching real-time blockchain analytics
+            </p>
+          </div>
         </div>
       </div>
     )
@@ -96,118 +120,179 @@ export default function Dashboard() {
 
   if (hasError) {
     return (
-      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-500 mb-2">Error loading data:</p>
-          {orderBookError && (
-            <p className="text-muted-foreground text-sm mb-2">
-              OrderBook: {orderBookError.message}
-            </p>
-          )}
-          {pumpingTimeError && (
-            <p className="text-muted-foreground text-sm mb-2">
-              PumpingTime: {pumpingTimeError.message}
-            </p>
-          )}
-          {interoperabilityError && (
-            <p className="text-muted-foreground text-sm mb-2">
-              Interoperability: {interoperabilityError.message}
-            </p>
-          )}
-          {stakingError && (
-            <p className="text-muted-foreground text-sm">
-              Staking: {stakingError.message}
-            </p>
-          )}
+      <div className="min-h-screen w-full flex items-center justify-center geometric-pattern">
+        <div className="text-center space-y-6 max-w-md">
+          <div className="w-16 h-16 bg-destructive/10 border-2 border-destructive/20 rounded-2xl flex items-center justify-center mx-auto">
+            <Activity className="w-8 h-8 text-destructive" />
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-xl font-display text-foreground">
+              Connection Error
+            </h2>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              {orderBookError && (
+                <p className="custom-card p-3">
+                  <span className="font-medium text-destructive">
+                    OrderBook:
+                  </span>{' '}
+                  {orderBookError.message}
+                </p>
+              )}
+              {stakingError && (
+                <p className="custom-card p-3">
+                  <span className="font-medium text-destructive">Staking:</span>{' '}
+                  {stakingError.message}
+                </p>
+              )}
+              {degenError && (
+                <p className="custom-card p-3">
+                  <span className="font-medium text-destructive">Degen:</span>{' '}
+                  {degenError.message}
+                </p>
+              )}
+              {monorailError && (
+                <p className="custom-card p-3">
+                  <span className="font-medium text-destructive">
+                    Monorail:
+                  </span>{' '}
+                  {monorailError.message}
+                </p>
+              )}
+              {monorailDexError && (
+                <p className="custom-card p-3">
+                  <span className="font-medium text-destructive">
+                    Monorail DEX:
+                  </span>{' '}
+                  {monorailDexError.message}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
-              Kuru Protocol Dashboard
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Real-time Kuru protocol data visualization and cross-chain
-              interoperability
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setSearchTerm(e.target.value)
-                }
-                className="pl-10 w-64"
-              />
+    <div className="w-full">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
+        <div className="mx-auto max-w-5xl px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo and Brand */}
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-12 h-12 bg-gradient-to-br from-accent via-primary to-secondary rounded-xl flex items-center justify-center shadow-lg">
+                  <Activity className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-accent/20 to-secondary/20 rounded-xl blur opacity-60"></div>
+              </div>
+
+              <div>
+                <h1 className="text-3xl font-display text-gradient">Miris</h1>
+              </div>
             </div>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => window.location.reload()}
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleTheme}
+                className="h-10 w-10 p-0 theme-toggle dark:text-white rounded-full"
+              >
+                <Sun className="h-4 w-4 sun-icon" />
+                <Moon className="h-4 w-4 moon-icon" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-10 w-10 p-0 dark:text-white rounded-full"
+                asChild
+              >
+                <a
+                  href="https://github.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Github className="h-4 w-4" />
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
+      </header>
 
-        {/* Tabs for different data views */}
-        <Tabs defaultValue="orderbook" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:w-[800px]">
-            <TabsTrigger value="orderbook" className="flex items-center gap-2">
-              <Activity className="w-4 h-4" />
-              Order Book
-            </TabsTrigger>
-            <TabsTrigger value="deployer" className="flex items-center gap-2">
-              <Rocket className="w-4 h-4" />
-              Deployer
-            </TabsTrigger>
-            <TabsTrigger
-              value="interoperability"
-              className="flex items-center gap-2"
-            >
-              <Globe className="w-4 h-4" />
-              Interoperability
-            </TabsTrigger>
-            <TabsTrigger value="staking" className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Staking
-            </TabsTrigger>
-          </TabsList>
+      {/* Main Content */}
+      <main className="">
+        <div className="mx-auto max-w-5xl px-6 py-8 space-y-8">
+          <Tabs defaultValue="orderbook" className="w-full">
+            <TabsList className="flex justify-between text-xs bg-muted/50 h-10 w-full">
+              <TabsTrigger
+                value="orderbook"
+                className="flex items-center gap-1 px-2"
+              >
+                <Activity className="w-3 h-3" />
+                <span className="hidden sm:inline">OrderBook</span>
+              </TabsTrigger>
+              <TabsTrigger value="dex" className="flex items-center gap-1 px-2">
+                <Shuffle className="w-3 h-3" />
+                <span className="hidden sm:inline">DEX</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="degen"
+                className="flex items-center gap-1 px-2"
+              >
+                <Zap className="w-3 h-3" />
+                <span className="hidden sm:inline">Degen</span>
+              </TabsTrigger>
+              <TabsTrigger value="tvl" className="flex items-center gap-1 px-2">
+                <TrendingUp className="w-3 h-3" />
+                <span className="hidden sm:inline">TVL</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="monorail"
+                className="flex items-center gap-1 px-2"
+              >
+                <Droplets className="w-3 h-3" />
+                <span className="hidden sm:inline">Pools</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="staking"
+                className="flex items-center gap-1 px-2"
+              >
+                <Heart className="w-3 h-3" />
+                <span className="hidden sm:inline">Staking</span>
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="orderbook" className="mt-6">
-            <PoolTable pools={orderBookData} />
-          </TabsContent>
+            <TabsContent value="tvl" className="mt-6">
+              <MultiTVLDashboard stakingData={stakingData} />
+            </TabsContent>
 
-          <TabsContent value="deployer" className="mt-6">
-            <PumpingTimeTable pools={pumpingTimeData} />
-          </TabsContent>
+            <TabsContent value="orderbook" className="mt-6">
+              <ClobTable clobData={orderBookData} />
+            </TabsContent>
 
-          <TabsContent value="interoperability" className="mt-6">
-            <InteroperabilityTable data={interoperabilityData} />
-          </TabsContent>
+            <TabsContent value="dex" className="mt-6">
+              <DexTable data={monorailDexData} />
+            </TabsContent>
 
-          <TabsContent value="staking" className="mt-6">
-            <StakingTable data={stakingData} />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="degen" className="mt-6">
+              <DegenTable data={degenData} />
+            </TabsContent>
 
-        {/* Footer */}
-        <div className="text-center text-muted-foreground py-8">
-          <p>
-            Data updated every 30 seconds • Powered by GraphQL & Apollo Client
-          </p>
+            <TabsContent value="monorail" className="mt-6">
+              <MonorailTable data={monorailData} />
+            </TabsContent>
+
+            <TabsContent value="staking" className="mt-6">
+              <StakingTable data={stakingData} />
+            </TabsContent>
+          </Tabs>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import ApolloProviderWrapper from '@/components/providers/ApolloProvider'
@@ -14,20 +14,25 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Crypto Dashboard - Real-time Data Visualization',
+  title: 'Miris - Advanced Protocol Analytics',
   description:
-    'A modern cryptocurrency data dashboard built with Next.js, Apollo Client, and GraphQL. Track tokens, pools, and DeFi metrics in real-time.',
+    'Real-time protocol analytics with cross-chain interoperability insights, advanced yield optimization, and comprehensive risk assessment.',
   keywords: [
     'crypto',
     'cryptocurrency',
     'DeFi',
+    'protocol analytics',
     'dashboard',
     'GraphQL',
     'Apollo',
     'Next.js',
   ],
-  authors: [{ name: 'Crypto Dashboard' }],
-  viewport: 'width=device-width, initial-scale=1',
+  authors: [{ name: 'Miris Analytics' }],
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({
@@ -36,11 +41,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-background`}
       >
-        <ApolloProviderWrapper>{children}</ApolloProviderWrapper>
+        <div className="">
+          <ApolloProviderWrapper>{children}</ApolloProviderWrapper>
+        </div>
       </body>
     </html>
   )

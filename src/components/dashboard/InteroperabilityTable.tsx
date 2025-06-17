@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import {
   Table,
   TableBody,
@@ -11,7 +12,17 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ExternalLink, Package, Send } from 'lucide-react'
+import { Package, Send } from 'lucide-react'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
+import { formatAddress, formatTimeAgo } from '@/lib/helpers'
 
 interface DeliveryData {
   id: string
@@ -29,7 +40,7 @@ interface DeliveryData {
 
 interface SendEventData {
   id: string
-  db_write_timestamp: number
+  db_write_timestamp: number | string
   sequence: number
   deliveryQuote: number
   paymentForExtraReceiverValue: number
@@ -48,24 +59,9 @@ interface InteroperabilityTableProps {
 export default function InteroperabilityTable({
   data,
 }: InteroperabilityTableProps) {
-  const formatNumber = (num: number) => {
-    if (num >= 1e9) {
-      return `${(num / 1e9).toFixed(2)}B`
-    } else if (num >= 1e6) {
-      return `${(num / 1e6).toFixed(2)}M`
-    } else if (num >= 1e3) {
-      return `${(num / 1e3).toFixed(2)}K`
-    }
-    return `${num.toLocaleString()}`
-  }
-
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 8)}...${address.slice(-6)}`
-  }
-
-  const formatTimestamp = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleString()
-  }
+  const [deliveryCurrentPage, setDeliveryCurrentPage] = useState(1)
+  const [sendEventCurrentPage, setSendEventCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   const getStatusBadge = (status: number) => {
     const statusMap: {
@@ -117,6 +113,34 @@ export default function InteroperabilityTable({
   const deliveryData = data?.WormholeRelayer_Delivery || []
   const sendEventData = data?.WormholeRelayer_SendEvent || []
 
+  // Delivery pagination
+  const totalDeliveryItems = deliveryData.length
+  const totalDeliveryPages = Math.ceil(totalDeliveryItems / itemsPerPage)
+  const deliveryStartIndex = (deliveryCurrentPage - 1) * itemsPerPage
+  const deliveryEndIndex = deliveryStartIndex + itemsPerPage
+  const paginatedDeliveryData = deliveryData.slice(
+    deliveryStartIndex,
+    deliveryEndIndex,
+  )
+
+  // Send Event pagination
+  const totalSendEventItems = sendEventData.length
+  const totalSendEventPages = Math.ceil(totalSendEventItems / itemsPerPage)
+  const sendEventStartIndex = (sendEventCurrentPage - 1) * itemsPerPage
+  const sendEventEndIndex = sendEventStartIndex + itemsPerPage
+  const paginatedSendEventData = sendEventData.slice(
+    sendEventStartIndex,
+    sendEventEndIndex,
+  )
+
+  const handleDeliveryPageChange = (page: number) => {
+    setDeliveryCurrentPage(page)
+  }
+
+  const handleSendEventPageChange = (page: number) => {
+    setSendEventCurrentPage(page)
+  }
+
   if (!data || (!deliveryData.length && !sendEventData.length)) {
     return (
       <Card className="crypto-card">
@@ -142,17 +166,21 @@ export default function InteroperabilityTable({
         <CardTitle className="text-lg font-semibold text-primary">
           Wormhole Relayer - Cross-Chain Interoperability
         </CardTitle>
+        <div className="text-sm text-muted-foreground mt-2">
+          Total: {totalDeliveryItems.toLocaleString()} deliveries,{' '}
+          {totalSendEventItems.toLocaleString()} send events
+        </div>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="deliveries" className="w-full">
           <TabsList className="grid w-full grid-cols-2 lg:w-[300px]">
             <TabsTrigger value="deliveries" className="flex items-center gap-2">
               <Package className="w-4 h-4" />
-              Deliveries ({deliveryData.length})
+              Deliveries ({totalDeliveryItems.toLocaleString()})
             </TabsTrigger>
             <TabsTrigger value="sendevents" className="flex items-center gap-2">
               <Send className="w-4 h-4" />
-              Send Events ({sendEventData.length})
+              Send Events ({totalSendEventItems.toLocaleString()})
             </TabsTrigger>
           </TabsList>
 
@@ -171,7 +199,7 @@ export default function InteroperabilityTable({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {deliveryData.slice(0, 10).map((delivery) => (
+                  {paginatedDeliveryData.map((delivery) => (
                     <TableRow key={delivery.id} className="hover:bg-accent/50">
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
@@ -201,22 +229,125 @@ export default function InteroperabilityTable({
                       </TableCell>
                       <TableCell>{getStatusBadge(delivery.status)}</TableCell>
                       <TableCell className="font-semibold text-primary">
-                        {formatNumber(delivery.gasUsed)}
+                        {delivery.gasUsed}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         #{delivery.sequence}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {formatTimestamp(delivery.db_write_timestamp)}
+                        {formatTimeAgo(String(delivery.db_write_timestamp))}
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </div>
-            {deliveryData.length > 10 && (
-              <div className="text-center mt-4 text-sm text-muted-foreground">
-                Showing 10 of {deliveryData.length} deliveries
+
+            {totalDeliveryPages > 1 && (
+              <div className="flex items-center justify-between mt-4">
+                <div className="text-sm text-muted-foreground">
+                  Showing {deliveryStartIndex + 1} to{' '}
+                  {Math.min(deliveryEndIndex, totalDeliveryItems)} of{' '}
+                  {totalDeliveryItems.toLocaleString()} deliveries
+                </div>
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() =>
+                          handleDeliveryPageChange(
+                            Math.max(1, deliveryCurrentPage - 1),
+                          )
+                        }
+                        className={
+                          deliveryCurrentPage === 1
+                            ? 'pointer-events-none opacity-50'
+                            : 'cursor-pointer'
+                        }
+                      />
+                    </PaginationItem>
+
+                    {/* Show first page */}
+                    {deliveryCurrentPage > 2 && (
+                      <PaginationItem>
+                        <PaginationLink
+                          onClick={() => handleDeliveryPageChange(1)}
+                          className="cursor-pointer"
+                        >
+                          1
+                        </PaginationLink>
+                      </PaginationItem>
+                    )}
+
+                    {/* Show ellipsis if needed */}
+                    {deliveryCurrentPage > 3 && (
+                      <PaginationItem>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    )}
+
+                    {/* Show current page and adjacent pages */}
+                    {[
+                      deliveryCurrentPage - 1,
+                      deliveryCurrentPage,
+                      deliveryCurrentPage + 1,
+                    ].map((page) => {
+                      if (page >= 1 && page <= totalDeliveryPages) {
+                        return (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => handleDeliveryPageChange(page)}
+                              isActive={page === deliveryCurrentPage}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
+                      }
+                      return null
+                    })}
+
+                    {/* Show ellipsis if needed */}
+                    {deliveryCurrentPage < totalDeliveryPages - 2 && (
+                      <PaginationItem>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    )}
+
+                    {/* Show last page */}
+                    {deliveryCurrentPage < totalDeliveryPages - 1 && (
+                      <PaginationItem>
+                        <PaginationLink
+                          onClick={() =>
+                            handleDeliveryPageChange(totalDeliveryPages)
+                          }
+                          className="cursor-pointer"
+                        >
+                          {totalDeliveryPages}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() =>
+                          handleDeliveryPageChange(
+                            Math.min(
+                              totalDeliveryPages,
+                              deliveryCurrentPage + 1,
+                            ),
+                          )
+                        }
+                        className={
+                          deliveryCurrentPage === totalDeliveryPages
+                            ? 'pointer-events-none opacity-50'
+                            : 'cursor-pointer'
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
               </div>
             )}
           </TabsContent>
@@ -234,7 +365,7 @@ export default function InteroperabilityTable({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sendEventData.slice(0, 10).map((sendEvent) => (
+                  {paginatedSendEventData.map((sendEvent) => (
                     <TableRow key={sendEvent.id} className="hover:bg-accent/50">
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
@@ -259,23 +390,126 @@ export default function InteroperabilityTable({
                           variant="outline"
                           className="bg-yellow-50 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
                         >
-                          {formatNumber(sendEvent.deliveryQuote)}
+                          {sendEvent.deliveryQuote}
                         </Badge>
                       </TableCell>
                       <TableCell className="font-semibold">
-                        {formatNumber(sendEvent.paymentForExtraReceiverValue)}
+                        {sendEvent.paymentForExtraReceiverValue}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {formatTimestamp(sendEvent.db_write_timestamp)}
+                        {formatTimeAgo(String(sendEvent.db_write_timestamp))}
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </div>
-            {sendEventData.length > 10 && (
-              <div className="text-center mt-4 text-sm text-muted-foreground">
-                Showing 10 of {sendEventData.length} send events
+
+            {totalSendEventPages > 1 && (
+              <div className="flex items-center justify-between mt-4">
+                <div className="text-sm text-muted-foreground">
+                  Showing {sendEventStartIndex + 1} to{' '}
+                  {Math.min(sendEventEndIndex, totalSendEventItems)} of{' '}
+                  {totalSendEventItems.toLocaleString()} send events
+                </div>
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() =>
+                          handleSendEventPageChange(
+                            Math.max(1, sendEventCurrentPage - 1),
+                          )
+                        }
+                        className={
+                          sendEventCurrentPage === 1
+                            ? 'pointer-events-none opacity-50'
+                            : 'cursor-pointer'
+                        }
+                      />
+                    </PaginationItem>
+
+                    {/* Show first page */}
+                    {sendEventCurrentPage > 2 && (
+                      <PaginationItem>
+                        <PaginationLink
+                          onClick={() => handleSendEventPageChange(1)}
+                          className="cursor-pointer"
+                        >
+                          1
+                        </PaginationLink>
+                      </PaginationItem>
+                    )}
+
+                    {/* Show ellipsis if needed */}
+                    {sendEventCurrentPage > 3 && (
+                      <PaginationItem>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    )}
+
+                    {/* Show current page and adjacent pages */}
+                    {[
+                      sendEventCurrentPage - 1,
+                      sendEventCurrentPage,
+                      sendEventCurrentPage + 1,
+                    ].map((page) => {
+                      if (page >= 1 && page <= totalSendEventPages) {
+                        return (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => handleSendEventPageChange(page)}
+                              isActive={page === sendEventCurrentPage}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
+                      }
+                      return null
+                    })}
+
+                    {/* Show ellipsis if needed */}
+                    {sendEventCurrentPage < totalSendEventPages - 2 && (
+                      <PaginationItem>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    )}
+
+                    {/* Show last page */}
+                    {sendEventCurrentPage < totalSendEventPages - 1 && (
+                      <PaginationItem>
+                        <PaginationLink
+                          onClick={() =>
+                            handleSendEventPageChange(totalSendEventPages)
+                          }
+                          className="cursor-pointer"
+                        >
+                          {totalSendEventPages}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() =>
+                          handleSendEventPageChange(
+                            Math.min(
+                              totalSendEventPages,
+                              sendEventCurrentPage + 1,
+                            ),
+                          )
+                        }
+                        className={
+                          sendEventCurrentPage === totalSendEventPages
+                            ? 'pointer-events-none opacity-50'
+                            : 'cursor-pointer'
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
               </div>
             )}
           </TabsContent>
