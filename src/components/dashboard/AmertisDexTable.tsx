@@ -10,16 +10,18 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import {
-  ExternalLink,
+  ArrowUpRight,
   RefreshCw,
   TrendingUp,
   TrendingDown,
   Zap,
+  Activity,
 } from 'lucide-react'
 import { GET_AMERTIS_DEX_SWAPS } from '@/lib/graphql/queries'
 import { formatTimeAgo, formatNumber, formatAddress } from '@/lib/helpers'
+import Link from 'next/link'
+import { MONAD_TESTNET_SCAN_URL } from '@/lib/utils'
 
 export default function AmertisDexTable() {
   const { data, loading, error, refetch } = useQuery(GET_AMERTIS_DEX_SWAPS, {
@@ -43,139 +45,186 @@ export default function AmertisDexTable() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <RefreshCw className="h-5 w-5 animate-spin" />
-            Loading Amertis DEX Swaps...
+      <Card className="custom-card">
+        <CardHeader className="border-b border-border/50 bg-muted/30">
+          <CardTitle className="text-lg font-display text-foreground flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded-lg flex items-center justify-center">
+              <RefreshCw className="w-4 h-4 text-white animate-spin" />
+            </div>
+            Amertis DEX Swaps
           </CardTitle>
         </CardHeader>
+        <CardContent className="py-12">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto">
+              <RefreshCw className="w-8 h-8 text-muted-foreground animate-spin" />
+            </div>
+            <p className="text-muted-foreground">
+              Loading Amertis DEX Swaps...
+            </p>
+          </div>
+        </CardContent>
       </Card>
     )
   }
 
   if (error) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-red-600">Error Loading Data</CardTitle>
+      <Card className="custom-card">
+        <CardHeader className="border-b border-border/50 bg-muted/30">
+          <CardTitle className="text-lg font-display text-foreground flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center">
+              <Activity className="w-4 h-4 text-white" />
+            </div>
+            Error Loading Data
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">{error.message}</p>
-          <Button onClick={() => refetch()} className="mt-4">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Retry
-          </Button>
+        <CardContent className="py-12">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto">
+              <Activity className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <p className="text-sm text-muted-foreground">{error.message}</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (!swaps.length) {
+    return (
+      <Card className="custom-card">
+        <CardHeader className="border-b border-border/50 bg-muted/30">
+          <CardTitle className="text-lg font-display text-foreground flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded-lg flex items-center justify-center">
+              <Zap className="w-4 h-4 text-white" />
+            </div>
+            Amertis DEX Swaps
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="py-12">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto">
+              <Zap className="w-8 h-8 text-muted-foreground animate-pulse" />
+            </div>
+            <p className="text-muted-foreground">No swaps available</p>
+          </div>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-purple-600" />
+    <Card className="custom-card py-0 gap-0">
+      <CardHeader className="bg-muted/20 px-4 py-4 gap-0 border-b border-border/50 !pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-display font-medium text-foreground flex items-center gap-2">
+            <Zap className="h-4 w-4 text-accent" />
             Amertis DEX Swaps
           </CardTitle>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-xs text-muted-foreground">Live</span>
+          </div>
         </div>
       </CardHeader>
 
-      <CardContent>
-        <div className="rounded-md border">
+      <CardContent className="p-0">
+        <div className="enhanced-table px-2">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Time</TableHead>
-                <TableHead>Token In</TableHead>
-                <TableHead>Amount In</TableHead>
-                <TableHead>Token Out</TableHead>
-                <TableHead>Amount Out</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>ID</TableHead>
+              <TableRow className="mx-auto border-b border-border/50 bg-muted/10">
+                <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Time
+                </TableHead>
+                <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Token In
+                </TableHead>
+                <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Amount In
+                </TableHead>
+                <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Token Out
+                </TableHead>
+                <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Amount Out
+                </TableHead>
+                <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                  User
+                </TableHead>
+                <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Timestamp
+                </TableHead>
+                <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Transaction
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {swaps.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
-                    <p className="text-muted-foreground">No swaps found</p>
+              {swaps.slice(0, 10).map((swap: any) => (
+                <TableRow key={swap.id} className="enhanced-table-row">
+                  <TableCell className="py-4">
+                    <div className="text-sm text-foreground">
+                      {formatTimeAgo(swap.db_write_timestamp)}
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="py-4">
+                    <div className="font-mono text-xs text-muted-foreground">
+                      {formatAddress(swap._tokenIn)}
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="py-4">
+                    <div className="flex items-center gap-2">
+                      <TrendingDown className="h-3 w-3 text-red-500" />
+                      <span className="volume-text text-sm">
+                        {formatTokenAmount(swap._amountIn)}
+                      </span>
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="py-4">
+                    <div className="font-mono text-xs text-muted-foreground">
+                      {formatAddress(swap._tokenOut)}
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="py-4">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-3 w-3 text-green-500" />
+                      <span className="volume-text text-sm">
+                        {formatTokenAmount(swap._amountOut)}
+                      </span>
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="py-4">
+                    <div className="font-mono text-xs text-muted-foreground">
+                      {formatAddress(swap.from)}
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="py-4">
+                    <span className="text-sm text-muted-foreground font-mono">
+                      {swap.timeStamp}
+                    </span>
+                  </TableCell>
+
+                  <TableCell className="py-4">
+                    <Link
+                      href={`${MONAD_TESTNET_SCAN_URL}/tx/${swap.id}`}
+                      target="_blank"
+                      className="tx-link inline-flex items-center gap-2 text-sm text-accent hover:text-accent/80"
+                    >
+                      <span className="font-mono">
+                        {formatAddress(swap.id)}
+                      </span>
+                      <ArrowUpRight className="w-3 h-3" />
+                    </Link>
                   </TableCell>
                 </TableRow>
-              ) : (
-                swaps.slice(0, 10).map((swap: any) => (
-                  <TableRow key={swap.id} className="hover:bg-muted/50">
-                    <TableCell className="font-medium">
-                      {formatTimeAgo(swap.db_write_timestamp)}
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="font-mono text-xs">
-                        {formatAddress(swap._tokenIn)}
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <TrendingDown className="h-3 w-3 text-red-500" />
-                        <span className="font-medium text-red-600">
-                          {formatTokenAmount(swap._amountIn)}
-                        </span>
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="font-mono text-xs">
-                        {formatAddress(swap._tokenOut)}
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <TrendingUp className="h-3 w-3 text-green-500" />
-                        <span className="font-medium text-green-600">
-                          {formatTokenAmount(swap._amountOut)}
-                        </span>
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="font-mono text-xs">
-                        {formatAddress(swap.from)}
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <span className="text-sm text-muted-foreground font-mono">
-                        {swap.timeStamp}
-                      </span>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs">
-                          {formatAddress(swap.id)}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-6 w-6 p-0"
-                          onClick={() =>
-                            window.open(
-                              `https://explorer.monad.xyz/tx/${swap.id}`,
-                              '_blank',
-                            )
-                          }
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
+              ))}
             </TableBody>
           </Table>
         </div>
