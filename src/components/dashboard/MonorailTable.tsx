@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Droplets, Hash, Activity } from 'lucide-react'
 import { formatAddress, formatTimeAgo } from '@/lib/helpers'
+import { useState } from 'react'
 
 interface MonorailTableProps {
   data: any
@@ -32,6 +33,7 @@ const formatTickSpacing = (tickSpacing: string | number) => {
 
 export default function MonorailTable({ data }: MonorailTableProps) {
   const pools = data?.Pool || []
+  const [isInitialLoad] = useState(true)
 
   if (!data || !pools.length) {
     return (
@@ -99,7 +101,12 @@ export default function MonorailTable({ data }: MonorailTableProps) {
             </TableHeader>
             <TableBody>
               {pools.slice(0, 10).map((pool: any) => (
-                <TableRow key={pool.id} className="enhanced-table-row">
+                <TableRow
+                  key={pool.id}
+                  className={`enhanced-table-row ${
+                    isInitialLoad ? 'table-row-staggered' : 'table-row-enter'
+                  }`}
+                >
                   <TableCell className="py-4">
                     <div className="font-mono text-xs text-muted-foreground">
                       {formatAddress(pool.pool)}

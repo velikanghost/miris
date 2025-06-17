@@ -11,6 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatAddress, formatTimeAgo } from '@/lib/helpers'
 import { Activity, Zap } from 'lucide-react'
+import { useState } from 'react'
 
 interface PumpingTimeData {
   id: string
@@ -28,6 +29,7 @@ interface PumpingTimeTableProps {
 
 export default function PumpingTimeTable({ pools }: PumpingTimeTableProps) {
   const pumpingTimeData = pools?.KuruDeployer_PumpingTime || []
+  const [isInitialLoad] = useState(true)
 
   if (!pools || !pumpingTimeData.length) {
     return (
@@ -95,7 +97,12 @@ export default function PumpingTimeTable({ pools }: PumpingTimeTableProps) {
             <TableBody>
               {pumpingTimeData.slice(0, 10).map((item) => {
                 return (
-                  <TableRow key={item.id} className="enhanced-table-row">
+                  <TableRow
+                    key={item.id}
+                    className={`enhanced-table-row ${
+                      isInitialLoad ? 'table-row-staggered' : 'table-row-enter'
+                    }`}
+                  >
                     <TableCell className="py-4">
                       <div className="font-medium text-foreground">N/A</div>
                     </TableCell>

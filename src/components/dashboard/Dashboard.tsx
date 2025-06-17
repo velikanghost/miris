@@ -8,6 +8,7 @@ import {
   NadFun_Combined,
   Monorail_Pools,
   Monorail_SwapEvent,
+  Amertis_Swap,
 } from '@/lib/graphql/queries'
 import StakingTable from './StakingTable'
 import DegenTable from './DegenTable'
@@ -70,18 +71,27 @@ export default function Dashboard() {
     startPolling: monorailDexStartPolling,
   } = useQuery(Monorail_SwapEvent)
 
+  const {
+    data: amertisDexData,
+    loading: amertisDexLoading,
+    error: amertisDexError,
+    startPolling: amertisDexStartPolling,
+  } = useQuery(Amertis_Swap)
+
   const isLoading =
     orderBookLoading ||
     stakingLoading ||
     degenLoading ||
     monorailLoading ||
-    monorailDexLoading
+    monorailDexLoading ||
+    amertisDexLoading
   const hasError =
     orderBookError ||
     stakingError ||
     degenError ||
     monorailError ||
-    monorailDexError
+    monorailDexError ||
+    amertisDexError
 
   useEffect(() => {
     orderBookStartPolling(3000)
@@ -89,12 +99,14 @@ export default function Dashboard() {
     degenStartPolling(3000)
     monorailStartPolling(3000)
     monorailDexStartPolling(3000)
+    amertisDexStartPolling(3000)
   }, [
     orderBookStartPolling,
     stakingStartPolling,
     degenStartPolling,
     monorailStartPolling,
     monorailDexStartPolling,
+    amertisDexStartPolling,
   ])
 
   if (isLoading) {
@@ -276,7 +288,7 @@ export default function Dashboard() {
             </TabsContent>
 
             <TabsContent value="dex" className="mt-6">
-              <DexTable data={monorailDexData} />
+              <DexTable data={monorailDexData} amertisData={amertisDexData} />
             </TabsContent>
 
             <TabsContent value="degen" className="mt-6">

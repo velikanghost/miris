@@ -15,12 +15,15 @@ import { formatAddress, formatNumber, formatTimeAgo } from '@/lib/helpers'
 import { Activity, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { MONAD_TESTNET_SCAN_URL } from '@/lib/utils'
+import { useState } from 'react'
 
 interface DegenTableProps {
   data: any
 }
 
 export default function DegenTable({ data }: DegenTableProps) {
+  const [isInitialLoad] = useState(true)
+
   if (!data) {
     return (
       <Card className="custom-card">
@@ -109,7 +112,11 @@ export default function DegenTable({ data }: DegenTableProps) {
                         (item: any) => (
                           <TableRow
                             key={item.id}
-                            className="enhanced-table-row"
+                            className={`enhanced-table-row ${
+                              isInitialLoad
+                                ? 'table-row-staggered'
+                                : 'table-row-enter'
+                            }`}
                           >
                             <TableCell className="py-4">
                               <div className="font-medium text-foreground">
@@ -197,7 +204,14 @@ export default function DegenTable({ data }: DegenTableProps) {
                       </TableRow>
                     ) : (
                       BondingCurve_Listing.map((item: any) => (
-                        <TableRow key={item.id} className="enhanced-table-row">
+                        <TableRow
+                          key={item.id}
+                          className={`enhanced-table-row ${
+                            isInitialLoad
+                              ? 'table-row-staggered'
+                              : 'table-row-enter'
+                          }`}
+                        >
                           <TableCell className="py-4">
                             <div className="font-mono text-xs text-muted-foreground">
                               {formatAddress(item.token)}
@@ -285,7 +299,14 @@ export default function DegenTable({ data }: DegenTableProps) {
                       </TableRow>
                     ) : (
                       BondingCurve_Sync.map((item: any) => (
-                        <TableRow key={item.id} className="enhanced-table-row">
+                        <TableRow
+                          key={item.id}
+                          className={`enhanced-table-row ${
+                            isInitialLoad
+                              ? 'table-row-staggered'
+                              : 'table-row-enter'
+                          }`}
+                        >
                           <TableCell className="py-4">
                             <div className="font-mono text-xs text-muted-foreground">
                               {formatAddress(item.token)}

@@ -245,8 +245,8 @@ export const Monorail_Pools = gql`
   }
 `
 
-export const GET_AMERTIS_DEX_SWAPS = gql`
-  query GetAmertisDexSwaps {
+export const Amertis_Swap = gql`
+  query Amertis_Swap {
     Swap(order_by: { db_write_timestamp: desc }) {
       _amountIn
       _amountOut

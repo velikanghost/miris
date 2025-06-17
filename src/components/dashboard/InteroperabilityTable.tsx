@@ -61,6 +61,7 @@ export default function InteroperabilityTable({
 }: InteroperabilityTableProps) {
   const [deliveryCurrentPage, setDeliveryCurrentPage] = useState(1)
   const [sendEventCurrentPage, setSendEventCurrentPage] = useState(1)
+  const [isInitialLoad] = useState(true)
   const itemsPerPage = 10
 
   const getStatusBadge = (status: number) => {
@@ -229,7 +230,14 @@ export default function InteroperabilityTable({
                 </TableHeader>
                 <TableBody>
                   {paginatedDeliveryData.map((delivery) => (
-                    <TableRow key={delivery.id} className="enhanced-table-row">
+                    <TableRow
+                      key={delivery.id}
+                      className={`enhanced-table-row ${
+                        isInitialLoad
+                          ? 'table-row-staggered'
+                          : 'table-row-enter'
+                      }`}
+                    >
                       <TableCell className="py-4">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
@@ -415,7 +423,14 @@ export default function InteroperabilityTable({
                 </TableHeader>
                 <TableBody>
                   {paginatedSendEventData.map((sendEvent) => (
-                    <TableRow key={sendEvent.id} className="enhanced-table-row">
+                    <TableRow
+                      key={sendEvent.id}
+                      className={`enhanced-table-row ${
+                        isInitialLoad
+                          ? 'table-row-staggered'
+                          : 'table-row-enter'
+                      }`}
+                    >
                       <TableCell className="py-4">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
