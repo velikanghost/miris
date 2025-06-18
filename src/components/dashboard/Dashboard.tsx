@@ -267,7 +267,7 @@ export default function Dashboard() {
               <div>
                 <h1 className="text-3xl font-display text-gradient">Miris</h1>
                 <TypingText
-                  text="Real-time monad testnet-1 monitoring"
+                  text="Real-time monad testnet-1 visualizer"
                   className="text-xs text-muted-foreground"
                   waitTime={1000}
                 />
