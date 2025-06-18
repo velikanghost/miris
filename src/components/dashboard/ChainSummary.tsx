@@ -1,23 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Activity,
-  Zap,
-  Box,
-  TrendingUp,
-  Gauge,
-  DollarSign,
-  Users,
-  Clock,
-  Hash,
-  Wifi,
-  WifiOff,
-} from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { motion } from 'framer-motion'
+import { Activity, Zap, Box, Clock } from 'lucide-react'
 import Counter from '@/components/ui/animata/Counter'
 import Ticker from '@/components/ui/animata/Ticker'
-import TypingText from '@/components/ui/animata/TypingText'
 import RingChart from '@/components/ui/animata/RingChart'
 import LiveBlockFeed from '@/components/ui/animata/LiveBlockFeed'
 
@@ -66,15 +53,15 @@ export default function ChainSummary() {
   const [connectionError, setConnectionError] = useState<string | null>(null)
 
   // Calculated metrics
-  const [realTimeBPS, setRealTimeBPS] = useState(0)
-  const [avgBlockTime, setAvgBlockTime] = useState(0)
+  const [realTimeBPS] = useState(0)
+  const [avgBlockTime] = useState(0)
 
   // Fallback HTTP data
   const [httpData, setHttpData] = useState<ChainData | null>(null)
   const [httpLoading, setHttpLoading] = useState(true)
 
   // Track block timing for real-time calculations
-  const [blockTimes, setBlockTimes] = useState<number[]>([])
+  //const [ setBlockTimes] = useState<number[]>([])
 
   // Calculate TPS from recent blocks using useMemo
   const realTimeTPS = useMemo(() => {
@@ -114,31 +101,31 @@ export default function ChainSummary() {
 
               case 'block_proposal':
                 const newBlock = data.payload
-                const currentTime = new Date(newBlock.Timestamp).getTime()
+                //const currentTime = new Date(newBlock.Timestamp).getTime()
 
                 // Update recent blocks
                 setRecentBlocks((prev) => [newBlock, ...prev.slice(0, 3)]) // Keep 4 most recent, show real data
 
                 // Update block times and calculate metrics in a single state update
-                setBlockTimes((prev) => {
-                  const newTimes = [...prev, currentTime].slice(-10) // Keep last 10 block times
+                // setBlockTimes((prev) => {
+                //   const newTimes = [...prev, currentTime].slice(-10) // Keep last 10 block times
 
-                  // Calculate metrics with the new times and schedule updates
-                  if (newTimes.length >= 2) {
-                    const timeDiff =
-                      (newTimes[newTimes.length - 1] - newTimes[0]) / 1000
-                    const bps = (newTimes.length - 1) / timeDiff
-                    const avgTime = timeDiff / (newTimes.length - 1)
+                //   // Calculate metrics with the new times and schedule updates
+                //   if (newTimes.length >= 2) {
+                //     const timeDiff =
+                //       (newTimes[newTimes.length - 1] - newTimes[0]) / 1000
+                //     const bps = (newTimes.length - 1) / timeDiff
+                //     const avgTime = timeDiff / (newTimes.length - 1)
 
-                    // Use setTimeout to batch metric updates and prevent cascading renders
-                    setTimeout(() => {
-                      setRealTimeBPS(bps)
-                      setAvgBlockTime(avgTime)
-                    }, 0)
-                  }
+                //     // Use setTimeout to batch metric updates and prevent cascading renders
+                //     setTimeout(() => {
+                //       setRealTimeBPS(bps)
+                //       setAvgBlockTime(avgTime)
+                //     }, 0)
+                //   }
 
-                  return newTimes
-                })
+                //   return newTimes
+                // })
                 break
             }
           } catch (error) {
