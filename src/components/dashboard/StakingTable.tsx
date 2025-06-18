@@ -12,9 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { formatAddress, formatNumber, formatTimeAgo } from '@/lib/helpers'
-import { Heart, ArrowDownLeft, ArrowUpRight } from 'lucide-react'
-import Link from 'next/link'
-import { MONAD_TESTNET_SCAN_URL } from '@/lib/utils'
+import { Heart } from 'lucide-react'
 
 interface AprMONVaultDeposit {
   id: string

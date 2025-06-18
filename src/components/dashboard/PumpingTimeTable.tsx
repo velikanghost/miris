@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatAddress, formatTimeAgo } from '@/lib/helpers'
-import { Activity, Zap } from 'lucide-react'
+import { Zap } from 'lucide-react'
 import { useState } from 'react'
 
 interface PumpingTimeData {

@@ -15,12 +15,10 @@ import {
 } from '@/lib/graphql/queries'
 import StakingTable from './StakingTable'
 import DegenTable from './DegenTable'
-import MultiTVLDashboard from '@/components/visualizations/MultiTVLDashboard'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import {
   Activity,
-  TrendingUp,
   Zap,
   Droplets,
   Heart,

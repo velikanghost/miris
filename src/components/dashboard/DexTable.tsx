@@ -1,12 +1,5 @@
-import { formatTimeAgo, formatAddress, formatNumber } from '@/lib/helpers'
-import {
-  TrendingUp,
-  TrendingDown,
-  ArrowUpRight,
-  Activity,
-  Zap,
-  ArrowRight,
-} from 'lucide-react'
+import { formatTimeAgo, formatAddress } from '@/lib/helpers'
+import { ArrowUpRight, Activity, Zap, ArrowRight } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Badge } from '../ui/badge'
 import {
@@ -81,7 +74,6 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
 
   // Token data hook for resolving addresses to names/symbols
   const {
-    tokens,
     getTokenInfo,
     loading: tokenLoading,
     error: tokenError,
@@ -422,7 +414,7 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
                 Top Routes
               </div>
               <div className="space-y-3">
-                {stats.topRoutes.map((route, index) => (
+                {stats.topRoutes.map((route) => (
                   <div key={route.name} className="space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-foreground">
