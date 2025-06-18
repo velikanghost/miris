@@ -33,6 +33,7 @@ import DexTable from './DexTable'
 import PoolTable from './PoolTable'
 import ChainSummary from './ChainSummary'
 import TypingText from '../ui/animata/TypingText'
+import Image from 'next/image'
 
 export default function Dashboard() {
   // Simple dark mode toggle using Tailwind's built-in system
@@ -179,69 +180,7 @@ export default function Dashboard() {
               Connection Error
             </h2>
             <div className="space-y-2 text-sm text-muted-foreground">
-              {orderBookError && (
-                <p className="custom-card p-3">
-                  <span className="font-medium text-destructive">
-                    OrderBook:
-                  </span>{' '}
-                  {orderBookError.message}
-                </p>
-              )}
-
-              {degenError && (
-                <p className="custom-card p-3">
-                  <span className="font-medium text-destructive">Degen:</span>{' '}
-                  {degenError.message}
-                </p>
-              )}
-              {monorailError && (
-                <p className="custom-card p-3">
-                  <span className="font-medium text-destructive">
-                    Monorail:
-                  </span>{' '}
-                  {monorailError.message}
-                </p>
-              )}
-              {monorailDexError && (
-                <p className="custom-card p-3">
-                  <span className="font-medium text-destructive">
-                    Monorail DEX:
-                  </span>{' '}
-                  {monorailDexError.message}
-                </p>
-              )}
-              {aprMONVaultError && (
-                <p className="custom-card p-3">
-                  <span className="font-medium text-destructive">
-                    AprMON Vault:
-                  </span>{' '}
-                  {aprMONVaultError.message}
-                </p>
-              )}
-              {magmaStakingError && (
-                <p className="custom-card p-3">
-                  <span className="font-medium text-destructive">
-                    Magma Staking:
-                  </span>{' '}
-                  {magmaStakingError.message}
-                </p>
-              )}
-              {aprMONVaultRedeemError && (
-                <p className="custom-card p-3">
-                  <span className="font-medium text-destructive">
-                    AprMON Vault Redeem:
-                  </span>{' '}
-                  {aprMONVaultRedeemError.message}
-                </p>
-              )}
-              {magmaStakingWithdrawError && (
-                <p className="custom-card p-3">
-                  <span className="font-medium text-destructive">
-                    Magma Staking Withdraw:
-                  </span>{' '}
-                  {magmaStakingWithdrawError.message}
-                </p>
-              )}
+              <p className="custom-card p-3">Loading failed</p>
             </div>
           </div>
         </div>
@@ -257,17 +196,20 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             {/* Logo and Brand */}
             <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-accent via-primary to-secondary rounded-xl flex items-center justify-center shadow-lg">
-                  <Activity className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <div className="absolute -inset-1 bg-gradient-to-r from-accent/20 to-secondary/20 rounded-xl blur opacity-60"></div>
+              <div className="relative h-[62px] w-[62px]">
+                <Image
+                  src="/logo-removebg-preview.png"
+                  alt="Miris"
+                  width={62}
+                  height={62}
+                  className="object-cover w-full h-full border-2 border-accent rounded-xl p-[1px]"
+                />
               </div>
 
               <div>
                 <h1 className="text-3xl font-display text-gradient">Miris</h1>
                 <TypingText
-                  text="Real-time monad testnet-1 visualizer"
+                  text="Real-time visualizer"
                   className="text-xs text-muted-foreground"
                   waitTime={1000}
                 />
@@ -382,6 +324,10 @@ export default function Dashboard() {
           </Tabs>
         </div>
       </main>
+
+      <div className="gif-container">
+        <img src="/1000012826.gif" alt="Miris" className="gif" />
+      </div>
     </div>
   )
 }
