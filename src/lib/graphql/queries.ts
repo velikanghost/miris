@@ -245,8 +245,8 @@ export const Monorail_Pools = gql`
   }
 `
 
-export const GET_AMERTIS_DEX_SWAPS = gql`
-  query GetAmertisDexSwaps {
+export const Amertis_Swap = gql`
+  query Amertis_Swap {
     Swap(order_by: { db_write_timestamp: desc }) {
       _amountIn
       _amountOut
@@ -278,6 +278,60 @@ export const Monorail_SwapEvent = gql`
       tokenOutAddress
       transactionHash
       userAddress
+    }
+  }
+`
+
+// Staking queries for AprMONVault and MagmaStaking
+export const AprMONVault_Deposit = gql`
+  query AprMONVault_Deposit {
+    AprMONVault_Deposit(order_by: { db_write_timestamp: desc }) {
+      id
+      db_write_timestamp
+      sender
+      shares
+      owner
+    }
+  }
+`
+
+export const MagmaStaking_Deposit = gql`
+  query MagmaStaking_Deposit {
+    MagmaStaking_Deposit(order_by: { db_write_timestamp: desc }) {
+      id
+      db_write_timestamp
+      depositor
+      amount
+      gMonMinted
+      referralId
+    }
+  }
+`
+
+// Withdrawal queries for AprMONVault and MagmaStaking
+export const AprMONVault_Redeem = gql`
+  query AprMONVault_Redeem {
+    AprMONVault_Redeem(order_by: { db_write_timestamp: desc }) {
+      id
+      db_write_timestamp
+      assets
+      controller
+      fee
+      receiver
+      requestId
+      shares
+    }
+  }
+`
+
+export const MagmaStaking_Withdraw = gql`
+  query MagmaStaking_Withdraw {
+    MagmaStaking_Withdraw(order_by: { db_write_timestamp: desc }) {
+      id
+      db_write_timestamp
+      gMonBurned
+      amount
+      withdrawer
     }
   }
 `

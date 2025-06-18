@@ -12,7 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Package, Send } from 'lucide-react'
+import { Package, Send, Activity } from 'lucide-react'
 import {
   Pagination,
   PaginationContent,
@@ -61,6 +61,7 @@ export default function InteroperabilityTable({
 }: InteroperabilityTableProps) {
   const [deliveryCurrentPage, setDeliveryCurrentPage] = useState(1)
   const [sendEventCurrentPage, setSendEventCurrentPage] = useState(1)
+  const [isInitialLoad] = useState(true)
   const itemsPerPage = 10
 
   const getStatusBadge = (status: number) => {
@@ -143,35 +144,50 @@ export default function InteroperabilityTable({
 
   if (!data || (!deliveryData.length && !sendEventData.length)) {
     return (
-      <Card className="crypto-card">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-primary">
+      <Card className="custom-card">
+        <CardHeader className="border-b border-border/50 bg-muted/30">
+          <CardTitle className="text-lg font-display text-foreground flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded-lg flex items-center justify-center">
+              <Activity className="w-4 h-4 text-white" />
+            </div>
             Wormhole Relayer - Interoperability
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-center py-8">
-            {!data
-              ? 'Loading interoperability data...'
-              : 'No interoperability data available'}
-          </p>
+        <CardContent className="py-12">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto">
+              <Activity className="w-8 h-8 text-muted-foreground animate-pulse" />
+            </div>
+            <p className="text-muted-foreground">
+              {!data
+                ? 'Loading interoperability data...'
+                : 'No interoperability data available'}
+            </p>
+          </div>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card className="crypto-card">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold text-primary">
-          Wormhole Relayer - Cross-Chain Interoperability
-        </CardTitle>
-        <div className="text-sm text-muted-foreground mt-2">
+    <Card className="custom-card py-0 gap-0">
+      <CardHeader className="bg-muted/20 px-4 py-4 gap-0 border-b border-border/50 !pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-display font-medium text-foreground flex items-center gap-2">
+            <Activity className="h-4 w-4 text-accent" />
+            Wormhole Relayer - Cross-Chain Interoperability
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-xs text-muted-foreground">Live</span>
+          </div>
+        </div>
+        <div className="text-xs text-muted-foreground mt-2">
           Total: {totalDeliveryItems.toLocaleString()} deliveries,{' '}
           {totalSendEventItems.toLocaleString()} send events
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4">
         <Tabs defaultValue="deliveries" className="w-full">
           <TabsList className="grid w-full grid-cols-2 lg:w-[300px]">
             <TabsTrigger value="deliveries" className="flex items-center gap-2">
@@ -185,29 +201,50 @@ export default function InteroperabilityTable({
           </TabsList>
 
           <TabsContent value="deliveries" className="mt-6">
-            <div className="overflow-x-auto">
+            <div className="enhanced-table">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>VAA Hash</TableHead>
-                    <TableHead>Source Chain</TableHead>
-                    <TableHead>Recipient</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Gas Used</TableHead>
-                    <TableHead>Sequence</TableHead>
-                    <TableHead>Timestamp</TableHead>
+                  <TableRow className="mx-auto border-b border-border/50 bg-muted/10">
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      VAA Hash
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Source Chain
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Recipient
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Status
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Gas Used
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Sequence
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Timestamp
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paginatedDeliveryData.map((delivery) => (
-                    <TableRow key={delivery.id} className="hover:bg-accent/50">
-                      <TableCell className="font-medium">
+                    <TableRow
+                      key={delivery.id}
+                      className={`enhanced-table-row ${
+                        isInitialLoad
+                          ? 'table-row-staggered'
+                          : 'table-row-enter'
+                      }`}
+                    >
+                      <TableCell className="py-4">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
                             🌉
                           </div>
                           <div className="text-sm">
-                            <div className="font-mono text-xs">
+                            <div className="font-mono text-xs text-muted-foreground">
                               {formatAddress(delivery.deliveryVaaHash)}
                             </div>
                             <div className="text-xs text-muted-foreground">
@@ -216,7 +253,7 @@ export default function InteroperabilityTable({
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-4">
                         <Badge
                           variant="outline"
                           className="bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
@@ -224,18 +261,28 @@ export default function InteroperabilityTable({
                           {getChainName(delivery.sourceChain)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        {formatAddress(delivery.recipientContract)}
+                      <TableCell className="py-4">
+                        <div className="font-mono text-xs text-muted-foreground">
+                          {formatAddress(delivery.recipientContract)}
+                        </div>
                       </TableCell>
-                      <TableCell>{getStatusBadge(delivery.status)}</TableCell>
-                      <TableCell className="font-semibold text-primary">
-                        {delivery.gasUsed}
+                      <TableCell className="py-4">
+                        {getStatusBadge(delivery.status)}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        #{delivery.sequence}
+                      <TableCell className="py-4">
+                        <div className="volume-text text-sm">
+                          {delivery.gasUsed}
+                        </div>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {formatTimeAgo(String(delivery.db_write_timestamp))}
+                      <TableCell className="py-4">
+                        <div className="text-sm text-muted-foreground">
+                          #{delivery.sequence}
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <div className="text-sm text-muted-foreground">
+                          {formatTimeAgo(String(delivery.db_write_timestamp))}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -353,27 +400,44 @@ export default function InteroperabilityTable({
           </TabsContent>
 
           <TabsContent value="sendevents" className="mt-6">
-            <div className="overflow-x-auto">
+            <div className="enhanced-table">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Event ID</TableHead>
-                    <TableHead>Sequence</TableHead>
-                    <TableHead>Delivery Quote</TableHead>
-                    <TableHead>Extra Payment</TableHead>
-                    <TableHead>Timestamp</TableHead>
+                  <TableRow className="mx-auto border-b border-border/50 bg-muted/10">
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Event ID
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Sequence
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Delivery Quote
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Extra Payment
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Timestamp
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paginatedSendEventData.map((sendEvent) => (
-                    <TableRow key={sendEvent.id} className="hover:bg-accent/50">
-                      <TableCell className="font-medium">
+                    <TableRow
+                      key={sendEvent.id}
+                      className={`enhanced-table-row ${
+                        isInitialLoad
+                          ? 'table-row-staggered'
+                          : 'table-row-enter'
+                      }`}
+                    >
+                      <TableCell className="py-4">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
                             📤
                           </div>
                           <div className="text-sm">
-                            <div className="font-mono text-xs">
+                            <div className="font-mono text-xs text-muted-foreground">
                               {formatAddress(sendEvent.id)}
                             </div>
                             <div className="text-xs text-muted-foreground">
@@ -382,10 +446,12 @@ export default function InteroperabilityTable({
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="font-semibold text-primary">
-                        #{sendEvent.sequence}
+                      <TableCell className="py-4">
+                        <div className="volume-text text-sm">
+                          #{sendEvent.sequence}
+                        </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-4">
                         <Badge
                           variant="outline"
                           className="bg-yellow-50 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
@@ -393,11 +459,15 @@ export default function InteroperabilityTable({
                           {sendEvent.deliveryQuote}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-semibold">
-                        {sendEvent.paymentForExtraReceiverValue}
+                      <TableCell className="py-4">
+                        <div className="volume-text text-sm">
+                          {sendEvent.paymentForExtraReceiverValue}
+                        </div>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {formatTimeAgo(String(sendEvent.db_write_timestamp))}
+                      <TableCell className="py-4">
+                        <div className="text-sm text-muted-foreground">
+                          {formatTimeAgo(String(sendEvent.db_write_timestamp))}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

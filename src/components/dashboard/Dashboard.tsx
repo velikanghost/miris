@@ -4,20 +4,21 @@ import { useQuery } from '@apollo/client'
 import { useEffect } from 'react'
 import {
   KuruOrderBook_Trade,
-  AprMonTVL1D,
   NadFun_Combined,
   Monorail_Pools,
   Monorail_SwapEvent,
+  Amertis_Swap,
+  AprMONVault_Deposit,
+  MagmaStaking_Deposit,
+  AprMONVault_Redeem,
+  MagmaStaking_Withdraw,
 } from '@/lib/graphql/queries'
 import StakingTable from './StakingTable'
 import DegenTable from './DegenTable'
-import MonorailTable from './MonorailTable'
-import MultiTVLDashboard from '@/components/visualizations/MultiTVLDashboard'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import {
   Activity,
-  TrendingUp,
   Zap,
   Droplets,
   Heart,
@@ -28,6 +29,7 @@ import {
 } from 'lucide-react'
 import ClobTable from './ClobTable'
 import DexTable from './DexTable'
+import PoolTable from './PoolTable'
 
 export default function Dashboard() {
   // Simple dark mode toggle using Tailwind's built-in system
@@ -41,13 +43,6 @@ export default function Dashboard() {
     error: orderBookError,
     startPolling: orderBookStartPolling,
   } = useQuery(KuruOrderBook_Trade)
-
-  const {
-    data: stakingData,
-    loading: stakingLoading,
-    error: stakingError,
-    startPolling: stakingStartPolling,
-  } = useQuery(AprMonTVL1D)
 
   const {
     data: degenData,
@@ -70,31 +65,82 @@ export default function Dashboard() {
     startPolling: monorailDexStartPolling,
   } = useQuery(Monorail_SwapEvent)
 
+  const {
+    data: amertisDexData,
+    loading: amertisDexLoading,
+    error: amertisDexError,
+    startPolling: amertisDexStartPolling,
+  } = useQuery(Amertis_Swap)
+
+  const {
+    data: aprMONVaultData,
+    loading: aprMONVaultLoading,
+    error: aprMONVaultError,
+    startPolling: aprMONVaultStartPolling,
+  } = useQuery(AprMONVault_Deposit)
+
+  const {
+    data: magmaStakingData,
+    loading: magmaStakingLoading,
+    error: magmaStakingError,
+    startPolling: magmaStakingStartPolling,
+  } = useQuery(MagmaStaking_Deposit)
+
+  const {
+    data: aprMONVaultRedeemData,
+    loading: aprMONVaultRedeemLoading,
+    error: aprMONVaultRedeemError,
+    startPolling: aprMONVaultRedeemStartPolling,
+  } = useQuery(AprMONVault_Redeem)
+
+  const {
+    data: magmaStakingWithdrawData,
+    loading: magmaStakingWithdrawLoading,
+    error: magmaStakingWithdrawError,
+    startPolling: magmaStakingWithdrawStartPolling,
+  } = useQuery(MagmaStaking_Withdraw)
+
   const isLoading =
     orderBookLoading ||
-    stakingLoading ||
     degenLoading ||
     monorailLoading ||
-    monorailDexLoading
+    monorailDexLoading ||
+    amertisDexLoading ||
+    aprMONVaultLoading ||
+    magmaStakingLoading ||
+    aprMONVaultRedeemLoading ||
+    magmaStakingWithdrawLoading
   const hasError =
     orderBookError ||
-    stakingError ||
     degenError ||
     monorailError ||
-    monorailDexError
+    monorailDexError ||
+    amertisDexError ||
+    aprMONVaultError ||
+    magmaStakingError ||
+    aprMONVaultRedeemError ||
+    magmaStakingWithdrawError
 
   useEffect(() => {
     orderBookStartPolling(3000)
-    stakingStartPolling(3000)
     degenStartPolling(3000)
     monorailStartPolling(3000)
     monorailDexStartPolling(3000)
+    amertisDexStartPolling(3000)
+    aprMONVaultStartPolling(3000)
+    magmaStakingStartPolling(3000)
+    aprMONVaultRedeemStartPolling(3000)
+    magmaStakingWithdrawStartPolling(3000)
   }, [
     orderBookStartPolling,
-    stakingStartPolling,
     degenStartPolling,
     monorailStartPolling,
     monorailDexStartPolling,
+    amertisDexStartPolling,
+    aprMONVaultStartPolling,
+    magmaStakingStartPolling,
+    aprMONVaultRedeemStartPolling,
+    magmaStakingWithdrawStartPolling,
   ])
 
   if (isLoading) {
@@ -138,12 +184,7 @@ export default function Dashboard() {
                   {orderBookError.message}
                 </p>
               )}
-              {stakingError && (
-                <p className="custom-card p-3">
-                  <span className="font-medium text-destructive">Staking:</span>{' '}
-                  {stakingError.message}
-                </p>
-              )}
+
               {degenError && (
                 <p className="custom-card p-3">
                   <span className="font-medium text-destructive">Degen:</span>{' '}
@@ -164,6 +205,38 @@ export default function Dashboard() {
                     Monorail DEX:
                   </span>{' '}
                   {monorailDexError.message}
+                </p>
+              )}
+              {aprMONVaultError && (
+                <p className="custom-card p-3">
+                  <span className="font-medium text-destructive">
+                    AprMON Vault:
+                  </span>{' '}
+                  {aprMONVaultError.message}
+                </p>
+              )}
+              {magmaStakingError && (
+                <p className="custom-card p-3">
+                  <span className="font-medium text-destructive">
+                    Magma Staking:
+                  </span>{' '}
+                  {magmaStakingError.message}
+                </p>
+              )}
+              {aprMONVaultRedeemError && (
+                <p className="custom-card p-3">
+                  <span className="font-medium text-destructive">
+                    AprMON Vault Redeem:
+                  </span>{' '}
+                  {aprMONVaultRedeemError.message}
+                </p>
+              )}
+              {magmaStakingWithdrawError && (
+                <p className="custom-card p-3">
+                  <span className="font-medium text-destructive">
+                    Magma Staking Withdraw:
+                  </span>{' '}
+                  {magmaStakingWithdrawError.message}
                 </p>
               )}
             </div>
@@ -247,10 +320,6 @@ export default function Dashboard() {
                 <Zap className="w-3 h-3" />
                 <span className="hidden sm:inline">Degen</span>
               </TabsTrigger>
-              <TabsTrigger value="tvl" className="flex items-center gap-1 px-2">
-                <TrendingUp className="w-3 h-3" />
-                <span className="hidden sm:inline">TVL</span>
-              </TabsTrigger>
               <TabsTrigger
                 value="monorail"
                 className="flex items-center gap-1 px-2"
@@ -267,16 +336,12 @@ export default function Dashboard() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="tvl" className="mt-6">
-              <MultiTVLDashboard stakingData={stakingData} />
-            </TabsContent>
-
             <TabsContent value="orderbook" className="mt-6">
               <ClobTable clobData={orderBookData} />
             </TabsContent>
 
             <TabsContent value="dex" className="mt-6">
-              <DexTable data={monorailDexData} />
+              <DexTable data={monorailDexData} amertisData={amertisDexData} />
             </TabsContent>
 
             <TabsContent value="degen" className="mt-6">
@@ -284,11 +349,16 @@ export default function Dashboard() {
             </TabsContent>
 
             <TabsContent value="monorail" className="mt-6">
-              <MonorailTable data={monorailData} />
+              <PoolTable data={monorailData} />
             </TabsContent>
 
             <TabsContent value="staking" className="mt-6">
-              <StakingTable data={stakingData} />
+              <StakingTable
+                aprMONVaultData={aprMONVaultData}
+                magmaStakingData={magmaStakingData}
+                aprMONVaultRedeemData={aprMONVaultRedeemData}
+                magmaStakingWithdrawData={magmaStakingWithdrawData}
+              />
             </TabsContent>
           </Tabs>
         </div>
