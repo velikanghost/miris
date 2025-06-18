@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
 const MONORAIL_API_BASE = 'https://testnet-api.monorail.xyz/v1'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const url = `${MONORAIL_API_BASE}/tokens/category/verified?offset=0&limit=500`
 
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS() {
   return new Response(null, {
     status: 200,
     headers: {
