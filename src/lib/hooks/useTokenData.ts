@@ -27,14 +27,12 @@ export const useTokenData = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch token data from Monorail API
+  // Fetch token data from our API proxy
   useEffect(() => {
     const fetchTokens = async () => {
       try {
         setLoading(true)
-        const response = await axios.get<Token[]>(
-          'https://testnet-api.monorail.xyz/v1/tokens/category/verified?offset=0&limit=500',
-        )
+        const response = await axios.get<Token[]>('/api/tokens/verified')
         setTokens(response.data)
         setError(null)
       } catch (err) {

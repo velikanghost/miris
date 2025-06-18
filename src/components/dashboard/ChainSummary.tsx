@@ -165,9 +165,7 @@ export default function ChainSummary() {
   useEffect(() => {
     const fetchHttpData = async () => {
       try {
-        const response = await fetch(
-          'https://www.gmonads.com/api/db/blocks/1m?network=testnet',
-        )
+        const response = await fetch('/api/gmonads')
         const result = await response.json()
         if (result.data && result.data.length > 0) {
           setHttpData(result.data[0])
