@@ -10,8 +10,6 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import Counter from '@/components/ui/animata/Counter'
-import Ticker from '@/components/ui/animata/Ticker'
 import { formatAddress, formatTimeAgo } from '@/lib/helpers'
 import { Activity, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
@@ -33,7 +31,7 @@ export default function DegenTable({ data }: DegenTableProps) {
             <div className="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded-lg flex items-center justify-center">
               <Activity className="w-4 h-4 text-white" />
             </div>
-            <Ticker value="Degen Data" />
+            Degen Data
           </CardTitle>
         </CardHeader>
         <CardContent className="py-12">
@@ -41,9 +39,7 @@ export default function DegenTable({ data }: DegenTableProps) {
             <div className="w-16 h-16 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto">
               <Activity className="w-8 h-8 text-muted-foreground animate-pulse" />
             </div>
-            <p className="text-muted-foreground">
-              <Ticker value="No degen data available" />
-            </p>
+            <p className="text-muted-foreground">No degen data available</p>
           </div>
         </CardContent>
       </Card>
@@ -59,7 +55,7 @@ export default function DegenTable({ data }: DegenTableProps) {
           <CardHeader className="bg-muted/20 px-4 py-4 gap-0 border-b border-border/50 !pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-display font-medium text-foreground">
-                <Ticker value="Token Creates" />
+                Token Creates
               </CardTitle>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -112,16 +108,12 @@ export default function DegenTable({ data }: DegenTableProps) {
                               variant="secondary"
                               className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-foreground font-bold text-xs px-2 py-1 rounded-md border border-blue-400/30 w-fit shadow-sm"
                             >
-                              <Ticker value={item.symbol || 'N/A'} />
+                              {item.symbol || 'N/A'}
                             </Badge>
                             <span className="text-sm">
-                              <Ticker
-                                value={
-                                  item.name && item.name.length > 20
-                                    ? `${item.name.substring(0, 20)}...`
-                                    : item.name || 'N/A'
-                                }
-                              />
+                              {item.name && item.name.length > 20
+                                ? `${item.name.substring(0, 20)}...`
+                                : item.name || 'N/A'}
                             </span>
                           </div>
                         </TableCell>
@@ -160,7 +152,7 @@ export default function DegenTable({ data }: DegenTableProps) {
           <CardHeader className="bg-muted/20 px-4 py-4 gap-0 border-b border-border/50 !pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-display font-medium text-foreground">
-                <Ticker value="Bonding Curve Syncs" />
+                Bonding Curve Syncs
               </CardTitle>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
