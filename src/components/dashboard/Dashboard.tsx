@@ -293,7 +293,7 @@ export default function Dashboard() {
                 asChild
               >
                 <a
-                  href="https://github.com"
+                  href="https://github.com/velikanghost/miris"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
