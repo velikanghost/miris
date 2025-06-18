@@ -54,7 +54,7 @@ const aprMONVaultLink = createHttpLink({
 
 // Create HTTP link for MagmaStaking (tenth endpoint)
 const magmaStakingLink = createHttpLink({
-  uri: 'https://indexer.dev.hyperindex.xyz/807bebd/v1/graphql',
+  uri: 'https://indexer.dev.hyperindex.xyz/b4c3cc3/v1/graphql',
 })
 
 // Split link based on operation name to route to different endpoints

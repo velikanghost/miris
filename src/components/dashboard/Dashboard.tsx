@@ -26,10 +26,13 @@ import {
   Moon,
   Sun,
   Github,
+  BarChart3,
 } from 'lucide-react'
 import ClobTable from './ClobTable'
 import DexTable from './DexTable'
 import PoolTable from './PoolTable'
+import ChainSummary from './ChainSummary'
+import TypingText from '../ui/animata/TypingText'
 
 export default function Dashboard() {
   // Simple dark mode toggle using Tailwind's built-in system
@@ -263,6 +266,11 @@ export default function Dashboard() {
 
               <div>
                 <h1 className="text-3xl font-display text-gradient">Miris</h1>
+                <TypingText
+                  text="Real-time monad testnet-1 monitoring"
+                  className="text-xs text-muted-foreground"
+                  waitTime={1000}
+                />
               </div>
             </div>
 
@@ -285,7 +293,7 @@ export default function Dashboard() {
                 asChild
               >
                 <a
-                  href="https://github.com"
+                  href="https://github.com/velikanghost/miris"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -300,8 +308,15 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="">
         <div className="mx-auto max-w-5xl px-6 py-8 space-y-8">
-          <Tabs defaultValue="orderbook" className="w-full">
+          <Tabs defaultValue="chain" className="w-full">
             <TabsList className="flex justify-between text-xs bg-muted/50 h-10 w-full">
+              <TabsTrigger
+                value="chain"
+                className="flex items-center gap-1 px-2"
+              >
+                <BarChart3 className="w-3 h-3" />
+                <span className="hidden sm:inline">Chain</span>
+              </TabsTrigger>
               <TabsTrigger
                 value="orderbook"
                 className="flex items-center gap-1 px-2"
@@ -335,6 +350,10 @@ export default function Dashboard() {
                 <span className="hidden sm:inline">Staking</span>
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="chain" className="mt-6">
+              <ChainSummary />
+            </TabsContent>
 
             <TabsContent value="orderbook" className="mt-6">
               <ClobTable clobData={orderBookData} />
