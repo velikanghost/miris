@@ -10,6 +10,8 @@ import {
   Amertis_Swap,
   AprMONVault_Deposit,
   MagmaStaking_Deposit,
+  AprMONVault_Redeem,
+  MagmaStaking_Withdraw,
 } from '@/lib/graphql/queries'
 import StakingTable from './StakingTable'
 import DegenTable from './DegenTable'
@@ -86,6 +88,20 @@ export default function Dashboard() {
     startPolling: magmaStakingStartPolling,
   } = useQuery(MagmaStaking_Deposit)
 
+  const {
+    data: aprMONVaultRedeemData,
+    loading: aprMONVaultRedeemLoading,
+    error: aprMONVaultRedeemError,
+    startPolling: aprMONVaultRedeemStartPolling,
+  } = useQuery(AprMONVault_Redeem)
+
+  const {
+    data: magmaStakingWithdrawData,
+    loading: magmaStakingWithdrawLoading,
+    error: magmaStakingWithdrawError,
+    startPolling: magmaStakingWithdrawStartPolling,
+  } = useQuery(MagmaStaking_Withdraw)
+
   const isLoading =
     orderBookLoading ||
     degenLoading ||
@@ -93,7 +109,9 @@ export default function Dashboard() {
     monorailDexLoading ||
     amertisDexLoading ||
     aprMONVaultLoading ||
-    magmaStakingLoading
+    magmaStakingLoading ||
+    aprMONVaultRedeemLoading ||
+    magmaStakingWithdrawLoading
   const hasError =
     orderBookError ||
     degenError ||
@@ -101,7 +119,9 @@ export default function Dashboard() {
     monorailDexError ||
     amertisDexError ||
     aprMONVaultError ||
-    magmaStakingError
+    magmaStakingError ||
+    aprMONVaultRedeemError ||
+    magmaStakingWithdrawError
 
   useEffect(() => {
     orderBookStartPolling(3000)
@@ -111,6 +131,8 @@ export default function Dashboard() {
     amertisDexStartPolling(3000)
     aprMONVaultStartPolling(3000)
     magmaStakingStartPolling(3000)
+    aprMONVaultRedeemStartPolling(3000)
+    magmaStakingWithdrawStartPolling(3000)
   }, [
     orderBookStartPolling,
     degenStartPolling,
@@ -119,6 +141,8 @@ export default function Dashboard() {
     amertisDexStartPolling,
     aprMONVaultStartPolling,
     magmaStakingStartPolling,
+    aprMONVaultRedeemStartPolling,
+    magmaStakingWithdrawStartPolling,
   ])
 
   if (isLoading) {
@@ -199,6 +223,22 @@ export default function Dashboard() {
                     Magma Staking:
                   </span>{' '}
                   {magmaStakingError.message}
+                </p>
+              )}
+              {aprMONVaultRedeemError && (
+                <p className="custom-card p-3">
+                  <span className="font-medium text-destructive">
+                    AprMON Vault Redeem:
+                  </span>{' '}
+                  {aprMONVaultRedeemError.message}
+                </p>
+              )}
+              {magmaStakingWithdrawError && (
+                <p className="custom-card p-3">
+                  <span className="font-medium text-destructive">
+                    Magma Staking Withdraw:
+                  </span>{' '}
+                  {magmaStakingWithdrawError.message}
                 </p>
               )}
             </div>
@@ -318,6 +358,8 @@ export default function Dashboard() {
               <StakingTable
                 aprMONVaultData={aprMONVaultData}
                 magmaStakingData={magmaStakingData}
+                aprMONVaultRedeemData={aprMONVaultRedeemData}
+                magmaStakingWithdrawData={magmaStakingWithdrawData}
               />
             </TabsContent>
           </Tabs>

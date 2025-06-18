@@ -65,7 +65,10 @@ const splitLink = split(
       definition.kind === 'OperationDefinition' ? definition.name?.value : ''
 
     // Route MagmaStaking queries to the tenth endpoint
-    return operationName === 'MagmaStaking_Deposit'
+    return (
+      operationName === 'MagmaStaking_Deposit' ||
+      operationName === 'MagmaStaking_Withdraw'
+    )
   },
   magmaStakingLink, // Use MagmaStaking endpoint
   split(
@@ -75,7 +78,10 @@ const splitLink = split(
         definition.kind === 'OperationDefinition' ? definition.name?.value : ''
 
       // Route AprMONVault queries to the ninth endpoint
-      return operationName === 'AprMONVault_Deposit'
+      return (
+        operationName === 'AprMONVault_Deposit' ||
+        operationName === 'AprMONVault_Redeem'
+      )
     },
     aprMONVaultLink, // Use AprMONVault endpoint
     split(

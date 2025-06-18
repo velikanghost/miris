@@ -307,3 +307,31 @@ export const MagmaStaking_Deposit = gql`
     }
   }
 `
+
+// Withdrawal queries for AprMONVault and MagmaStaking
+export const AprMONVault_Redeem = gql`
+  query AprMONVault_Redeem {
+    AprMONVault_Redeem(order_by: { db_write_timestamp: desc }) {
+      id
+      db_write_timestamp
+      assets
+      controller
+      fee
+      receiver
+      requestId
+      shares
+    }
+  }
+`
+
+export const MagmaStaking_Withdraw = gql`
+  query MagmaStaking_Withdraw {
+    MagmaStaking_Withdraw(order_by: { db_write_timestamp: desc }) {
+      id
+      db_write_timestamp
+      gMonBurned
+      amount
+      withdrawer
+    }
+  }
+`
