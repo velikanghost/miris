@@ -10,9 +10,10 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Droplets, Hash, Activity } from 'lucide-react'
+import { Droplets } from 'lucide-react'
 import { formatAddress, formatTimeAgo } from '@/lib/helpers'
 import { useState } from 'react'
+import { useTokenData } from '@/lib/hooks/useTokenData'
 
 interface PoolTableProps {
   data: any
@@ -35,6 +36,13 @@ export default function PoolTable({ data }: PoolTableProps) {
   const pools = data?.Pool || []
   const [isInitialLoad] = useState(true)
 
+  // Token data hook for resolving addresses to names/symbols
+  const {
+    getTokenInfo,
+    loading: tokenLoading,
+    error: tokenError,
+  } = useTokenData()
+
   if (!data || !pools.length) {
     return (
       <Card className="custom-card">
@@ -52,8 +60,17 @@ export default function PoolTable({ data }: PoolTableProps) {
               <Droplets className="w-8 h-8 text-muted-foreground animate-pulse" />
             </div>
             <p className="text-muted-foreground">
-              {!data ? 'Loading pools...' : 'No pools available'}
+              {!data
+                ? 'Loading pools...'
+                : tokenLoading
+                ? 'Loading token data...'
+                : 'No pools available'}
             </p>
+            {tokenError && (
+              <p className="text-red-500 text-sm">
+                Token resolution error: {tokenError}
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -67,10 +84,18 @@ export default function PoolTable({ data }: PoolTableProps) {
           <CardTitle className="text-base font-display font-medium text-foreground flex items-center gap-2">
             <Droplets className="h-4 w-4 text-accent" />
             Pools
+            {tokenLoading && (
+              <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+            )}
           </CardTitle>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-xs text-muted-foreground">Live</span>
+          <div className="flex items-center gap-3">
+            {tokenError && (
+              <span className="text-xs text-red-500">Token Error</span>
+            )}
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs text-muted-foreground">Live</span>
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -113,19 +138,23 @@ export default function PoolTable({ data }: PoolTableProps) {
                     </div>
                   </TableCell>
                   <TableCell className="py-4">
-                    <div className="flex items-center gap-2">
-                      <Hash className="h-3 w-3 text-muted-foreground" />
-                      <span className="font-mono text-xs text-muted-foreground">
+                    <div className="space-y-1">
+                      <div className="font-medium text-sm text-foreground">
+                        {getTokenInfo(pool.token0).displayName}
+                      </div>
+                      <div className="font-mono text-xs text-muted-foreground">
                         {formatAddress(pool.token0)}
-                      </span>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell className="py-4">
-                    <div className="flex items-center gap-2">
-                      <Hash className="h-3 w-3 text-muted-foreground" />
-                      <span className="font-mono text-xs text-muted-foreground">
+                    <div className="space-y-1">
+                      <div className="font-medium text-sm text-foreground">
+                        {getTokenInfo(pool.token1).displayName}
+                      </div>
+                      <div className="font-mono text-xs text-muted-foreground">
                         {formatAddress(pool.token1)}
-                      </span>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell className="py-4">

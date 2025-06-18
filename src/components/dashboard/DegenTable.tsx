@@ -149,7 +149,7 @@ export default function DegenTable({ data }: DegenTableProps) {
           </CardContent>
         </Card>
 
-        <Card className="flex-1 min-w-0 custom-card py-0 gap-0 max-w-80">
+        <Card className="flex-1 min-w-0 custom-card py-0 gap-0 max-w-80 h-fit">
           <CardHeader className="bg-muted/20 px-4 py-4 gap-0 border-b border-border/50 !pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-display font-medium text-foreground">

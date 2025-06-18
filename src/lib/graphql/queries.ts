@@ -281,3 +281,29 @@ export const Monorail_SwapEvent = gql`
     }
   }
 `
+
+// Staking queries for AprMONVault and MagmaStaking
+export const AprMONVault_Deposit = gql`
+  query AprMONVault_Deposit {
+    AprMONVault_Deposit(order_by: { db_write_timestamp: desc }) {
+      id
+      db_write_timestamp
+      sender
+      shares
+      owner
+    }
+  }
+`
+
+export const MagmaStaking_Deposit = gql`
+  query MagmaStaking_Deposit {
+    MagmaStaking_Deposit(order_by: { db_write_timestamp: desc }) {
+      id
+      db_write_timestamp
+      depositor
+      amount
+      gMonMinted
+      referralId
+    }
+  }
+`
