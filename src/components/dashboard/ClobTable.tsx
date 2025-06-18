@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import Counter from '@/components/ui/animata/Counter'
+import Ticker from '@/components/ui/animata/Ticker'
 
 import { formatAddress, formatNumber, formatTimeAgo } from '@/lib/helpers'
 import {
@@ -100,7 +102,7 @@ export default function ClobTable({ clobData }: ClobTableProps) {
             <div className="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded-lg flex items-center justify-center">
               <Activity className="w-4 h-4 text-white" />
             </div>
-            Kuru OrderBook Trades
+            <Ticker value="Kuru OrderBook Trades" />
           </CardTitle>
         </CardHeader>
         <CardContent className="py-12">
@@ -126,7 +128,7 @@ export default function ClobTable({ clobData }: ClobTableProps) {
           <CardHeader className="bg-muted/20 py-4 px-4 gap-0">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-display font-medium text-foreground">
-                CLOBs
+                <Ticker value="CLOBs" />
               </CardTitle>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -169,17 +171,26 @@ export default function ClobTable({ clobData }: ClobTableProps) {
                       >
                         <TableCell className="py-4">
                           <div className="font-medium text-foreground">
-                            Kuru
+                            <Ticker value="Kuru" />
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            Block #{trade.blockHeight.toLocaleString()}
+                            Block #
+                            <Counter
+                              targetValue={trade.blockHeight}
+                              format={(v) => Math.floor(v).toLocaleString()}
+                            />
                           </div>
                         </TableCell>
 
                         <TableCell className="py-4">
                           <div className="space-y-1">
                             <div className="volume-text text-base">
-                              {formatNumber(trade.filledSize, true, 10)} MON
+                              <Counter
+                                targetValue={trade.filledSize}
+                                format={(v) => formatNumber(v, true, 10)}
+                                className="text-foreground"
+                              />{' '}
+                              MON
                             </div>
                           </div>
                         </TableCell>
@@ -239,7 +250,7 @@ export default function ClobTable({ clobData }: ClobTableProps) {
           <CardHeader className="bg-muted/20 px-4 py-4 gap-0 border-b border-border/50 !pb-4">
             <CardTitle className="text-base font-display text-foreground flex items-center gap-2">
               <Zap className="w-4 h-4 text-accent" />
-              Trading Stats
+              <Ticker value="Trading Stats" />
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
@@ -285,11 +296,15 @@ export default function ClobTable({ clobData }: ClobTableProps) {
               <div className="flex justify-center gap-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
-                  <span className="text-xs">Buys ({stats.buyOrders})</span>
+                  <span className="text-xs">
+                    Buys (<Counter targetValue={stats.buyOrders} />)
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-gradient-to-r from-red-500 to-red-600 rounded-full"></div>
-                  <span className="text-xs">Sells ({stats.sellOrders})</span>
+                  <span className="text-xs">
+                    Sells (<Counter targetValue={stats.sellOrders} />)
+                  </span>
                 </div>
               </div>
             </div>
@@ -323,7 +338,11 @@ export default function ClobTable({ clobData }: ClobTableProps) {
                       {/* Right side - Size and tx hash */}
                       <div className="flex-1 space-y-1">
                         <div className="text-sm font-medium font-mono">
-                          {formatNumber(trade.filledSize, true, 10)} MON
+                          <Counter
+                            targetValue={trade.filledSize}
+                            format={(v) => formatNumber(v, true, 10)}
+                          />{' '}
+                          MON
                         </div>
                         <Link
                           href={`${MONAD_TESTNET_SCAN_URL}/tx/${trade.transactionHash}`}
