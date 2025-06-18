@@ -5,6 +5,7 @@ import {
   ArrowUpRight,
   Activity,
   Zap,
+  ArrowRight,
 } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Badge } from '../ui/badge'
@@ -20,6 +21,7 @@ import Link from 'next/link'
 import { MONAD_TESTNET_SCAN_URL } from '@/lib/utils'
 import { useState, useMemo } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
+import { useTokenData } from '@/lib/hooks/useTokenData'
 
 interface MonorailSwap {
   id: string
@@ -76,6 +78,14 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
   const monorailDexSwaps = data?.SwapEvent || []
   const amertisDexSwaps = amertisData?.Swap?.slice(0, 10) || []
   const [isInitialLoad] = useState(true)
+
+  // Token data hook for resolving addresses to names/symbols
+  const {
+    tokens,
+    getTokenInfo,
+    loading: tokenLoading,
+    error: tokenError,
+  } = useTokenData()
 
   // Normalize Monorail data
   const normalizedMonorailSwaps: NormalizedSwap[] = monorailDexSwaps.map(
@@ -138,11 +148,20 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
 
     // Pie chart data for exchange distribution
     const exchangeColors: { [key: string]: string } = {
-      Monorail: 'hsl(217, 91%, 60%)', // Blue
-      Amertis: 'hsl(271, 81%, 56%)', // Purple
+      'octoswap-v2': 'hsl(217, 91%, 60%)', // Blue
+      'monda-v2': 'hsl(271, 81%, 56%)', // Purple
       'crystal-ob': 'hsl(142, 76%, 36%)', // Green
-      UniswapV2: 'hsl(25, 95%, 53%)', // Orange
-      SushiSwap: 'hsl(330, 81%, 60%)', // Pink
+      'uniswap-v3': 'hsl(25, 95%, 53%)', // Orange
+      'zkswap-v2': 'hsl(330, 81%, 60%)', // Pink
+      'bean-v2': 'hsl(45, 93%, 47%)', // Yellow
+      'monad-wrapper': 'hsl(195, 85%, 50%)', // Cyan
+      'kuru-ob': 'hsl(15, 86%, 55%)', // Red-Orange
+      'madness-v2': 'hsl(255, 75%, 65%)', // Indigo
+      'uniswap-v2': 'hsl(180, 70%, 50%)', // Teal
+      'pancakeswap-v2': 'hsl(120, 65%, 55%)', // Lime
+      amertis: 'hsl(300, 70%, 60%)', // Violet
+      'atlantis-v2': 'hsl(200, 85%, 60%)', // Sky Blue
+      'nadfun-v2': 'hsl(350, 80%, 65%)', // Coral
     }
 
     const pieData = Object.entries(exchangeCounts).map(([exchange, count]) => ({
@@ -151,7 +170,7 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
       color: exchangeColors[exchange] || 'hsl(210, 40%, 60%)',
     }))
 
-    // Get top 7 routes sorted by swap count
+    // Get top 5 routes sorted by swap count
     const topRoutes = Object.entries(exchangeCounts)
       .map(([exchange, count]) => ({
         name: exchange,
@@ -163,7 +182,7 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
           : 0,
       }))
       .sort((a, b) => b.swaps - a.swaps)
-      .slice(0, 7)
+      .slice(0, 5)
 
     return {
       totalVolume,
@@ -175,16 +194,33 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
 
   const getExchangeBadgeColor = (exchangeName: string) => {
     const colors: { [key: string]: string } = {
-      Monorail:
+      'octoswap-v2':
         'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200',
       'crystal-ob':
         'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200',
-      Amertis:
+      'monda-v2':
         'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200',
-      UniswapV2:
+      'uniswap-v3':
         'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-200',
-      SushiSwap:
+      'zkswap-v2':
         'bg-pink-100 text-pink-800 dark:bg-pink-900/50 dark:text-pink-200',
+      'bean-v2':
+        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200',
+      'monad-wrapper':
+        'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-200',
+      'kuru-ob': 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200',
+      'madness-v2':
+        'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200',
+      'uniswap-v2':
+        'bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-200',
+      'pancakeswap-v2':
+        'bg-lime-100 text-lime-800 dark:bg-lime-900/50 dark:text-lime-200',
+      amertis:
+        'bg-violet-100 text-violet-800 dark:bg-violet-900/50 dark:text-violet-200',
+      'atlantis-v2':
+        'bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200',
+      'nadfun-v2':
+        'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-200',
       default:
         'bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-200',
     }
@@ -207,7 +243,14 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
             <div className="w-16 h-16 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto">
               <Activity className="w-8 h-8 text-muted-foreground animate-pulse" />
             </div>
-            <p className="text-muted-foreground">No swaps available</p>
+            <p className="text-muted-foreground">
+              {tokenLoading ? 'Loading token data...' : 'No swaps available'}
+            </p>
+            {tokenError && (
+              <p className="text-red-500 text-sm">
+                Token resolution error: {tokenError}
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -222,12 +265,20 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
         <Card className="custom-card flex-1 min-w-0 py-0 gap-0">
           <CardHeader className="bg-muted/20 py-4 px-4 gap-0">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-display font-medium text-foreground">
+              <CardTitle className="text-base font-display font-medium text-foreground flex items-center gap-2">
                 DEX Swaps
+                {tokenLoading && (
+                  <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                )}
               </CardTitle>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-muted-foreground">Live</span>
+              <div className="flex items-center gap-3">
+                {tokenError && (
+                  <span className="text-xs text-red-500">Token Error</span>
+                )}
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-muted-foreground">Live</span>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -237,22 +288,19 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
                 <TableHeader>
                   <TableRow className="mx-auto border-b border-border/50 bg-muted/10">
                     <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
-                      Time
-                    </TableHead>
-                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                       Exchange
                     </TableHead>
                     <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
-                      Token In
+                      Swap
                     </TableHead>
                     <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                       Size
                     </TableHead>
+                    {/* <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                  User
+                    </TableHead> */}
                     <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
-                      Token Out
-                    </TableHead>
-                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
-                      User
+                      Time
                     </TableHead>
                     <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                       Transaction
@@ -270,12 +318,6 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
                       }`}
                     >
                       <TableCell className="py-4 whitespace-nowrap">
-                        <div className="text-sm text-foreground">
-                          {formatTimeAgo(swap.db_write_timestamp)}
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="py-4 whitespace-nowrap">
                         <Badge
                           className={getExchangeBadgeColor(swap.exchangeName)}
                         >
@@ -284,29 +326,25 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
                       </TableCell>
 
                       <TableCell className="py-4 whitespace-nowrap">
-                        <div className="font-mono text-xs text-muted-foreground">
-                          {formatAddress(swap.tokenIn)}
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <TrendingDown className="h-3 w-3 text-red-500" />
-                          <span className="volume-text text-sm">
-                            {formatNumber(swap.amountIn, true, 18)}
-                          </span>
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="py-4 whitespace-nowrap">
-                        <div className="font-mono text-xs text-muted-foreground">
-                          {formatAddress(swap.tokenOut)}
+                          <div className="font-medium text-sm text-foreground">
+                            {getTokenInfo(swap.tokenIn).displayName}
+                          </div>
+                          <ArrowRight className="w-3 h-3 text-muted-foreground" />
+                          <div className="font-medium text-sm text-foreground">
+                            {getTokenInfo(swap.tokenOut).displayName}
+                          </div>
                         </div>
                       </TableCell>
 
                       <TableCell className="py-4 whitespace-nowrap">
                         <div className="font-mono text-xs text-muted-foreground">
                           {formatAddress(swap.userAddress)}
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-4 whitespace-nowrap">
+                        <div className="text-sm text-foreground">
+                          {formatTimeAgo(swap.db_write_timestamp)}
                         </div>
                       </TableCell>
 

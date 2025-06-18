@@ -14,7 +14,7 @@ import { Droplets, Hash, Activity } from 'lucide-react'
 import { formatAddress, formatTimeAgo } from '@/lib/helpers'
 import { useState } from 'react'
 
-interface MonorailTableProps {
+interface PoolTableProps {
   data: any
 }
 
@@ -31,7 +31,7 @@ const formatTickSpacing = (tickSpacing: string | number) => {
   return tickSpacing.toString()
 }
 
-export default function MonorailTable({ data }: MonorailTableProps) {
+export default function PoolTable({ data }: PoolTableProps) {
   const pools = data?.Pool || []
   const [isInitialLoad] = useState(true)
 
@@ -43,7 +43,7 @@ export default function MonorailTable({ data }: MonorailTableProps) {
             <div className="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded-lg flex items-center justify-center">
               <Droplets className="w-4 h-4 text-white" />
             </div>
-            Monorail Pools
+            Pools
           </CardTitle>
         </CardHeader>
         <CardContent className="py-12">
@@ -66,7 +66,7 @@ export default function MonorailTable({ data }: MonorailTableProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-display font-medium text-foreground flex items-center gap-2">
             <Droplets className="h-4 w-4 text-accent" />
-            Monorail Pools
+            Pools
           </CardTitle>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -100,7 +100,7 @@ export default function MonorailTable({ data }: MonorailTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pools.slice(0, 10).map((pool: any) => (
+              {pools.slice(0, 7).map((pool: any) => (
                 <TableRow
                   key={pool.id}
                   className={`enhanced-table-row ${

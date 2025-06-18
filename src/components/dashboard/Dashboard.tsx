@@ -12,7 +12,6 @@ import {
 } from '@/lib/graphql/queries'
 import StakingTable from './StakingTable'
 import DegenTable from './DegenTable'
-import MonorailTable from './MonorailTable'
 import MultiTVLDashboard from '@/components/visualizations/MultiTVLDashboard'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -29,6 +28,7 @@ import {
 } from 'lucide-react'
 import ClobTable from './ClobTable'
 import DexTable from './DexTable'
+import PoolTable from './PoolTable'
 
 export default function Dashboard() {
   // Simple dark mode toggle using Tailwind's built-in system
@@ -259,10 +259,6 @@ export default function Dashboard() {
                 <Zap className="w-3 h-3" />
                 <span className="hidden sm:inline">Degen</span>
               </TabsTrigger>
-              <TabsTrigger value="tvl" className="flex items-center gap-1 px-2">
-                <TrendingUp className="w-3 h-3" />
-                <span className="hidden sm:inline">TVL</span>
-              </TabsTrigger>
               <TabsTrigger
                 value="monorail"
                 className="flex items-center gap-1 px-2"
@@ -270,6 +266,10 @@ export default function Dashboard() {
                 <Droplets className="w-3 h-3" />
                 <span className="hidden sm:inline">Pools</span>
               </TabsTrigger>
+              {/* <TabsTrigger value="tvl" className="flex items-center gap-1 px-2">
+                <TrendingUp className="w-3 h-3" />
+                <span className="hidden sm:inline">TVL</span>
+              </TabsTrigger> */}
               <TabsTrigger
                 value="staking"
                 className="flex items-center gap-1 px-2"
@@ -279,9 +279,9 @@ export default function Dashboard() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="tvl" className="mt-6">
+            {/* <TabsContent value="tvl" className="mt-6">
               <MultiTVLDashboard stakingData={stakingData} />
-            </TabsContent>
+            </TabsContent> */}
 
             <TabsContent value="orderbook" className="mt-6">
               <ClobTable clobData={orderBookData} />
@@ -296,7 +296,7 @@ export default function Dashboard() {
             </TabsContent>
 
             <TabsContent value="monorail" className="mt-6">
-              <MonorailTable data={monorailData} />
+              <PoolTable data={monorailData} />
             </TabsContent>
 
             <TabsContent value="staking" className="mt-6">

@@ -47,301 +47,179 @@ export default function DegenTable({ data }: DegenTableProps) {
     )
   }
 
-  const {
-    IBondingCurveFactory_Create = [],
-    BondingCurve_Listing = [],
-    BondingCurve_Sync = [],
-  } = data
+  const { IBondingCurveFactory_Create = [], BondingCurve_Sync = [] } = data
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="creates" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-transparent border-b rounded-none">
-          <TabsTrigger value="creates">Token Creates</TabsTrigger>
-          <TabsTrigger value="listings">Listings</TabsTrigger>
-          <TabsTrigger value="syncs">Curve Syncs</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="creates">
-          <Card className="custom-card py-0 gap-0">
-            <CardHeader className="bg-muted/20 px-4 py-4 gap-0 border-b border-border/50 !pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base font-display font-medium text-foreground">
-                  Token Creates
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-muted-foreground">Live</span>
-                </div>
+      <div className="flex flex-col lg:flex-row gap-6 min-w-0">
+        <Card className="flex-1 min-w-0 custom-card py-0 gap-0">
+          <CardHeader className="bg-muted/20 px-4 py-4 gap-0 border-b border-border/50 !pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-display font-medium text-foreground">
+                Token Creates
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-muted-foreground">Live</span>
               </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="enhanced-table px-2">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="mx-auto border-b border-border/50 bg-muted/10">
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Name
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Symbol
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Dev
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Token
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Age
-                      </TableHead>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="enhanced-table px-2 overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="mx-auto border-b border-border/50 bg-muted/10">
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                      Name
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                      Dev
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                      Token
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                      Age
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {IBondingCurveFactory_Create.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className="text-center text-muted-foreground py-8"
+                      >
+                        No token creates found
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {IBondingCurveFactory_Create.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={5}
-                          className="text-center text-muted-foreground py-8"
-                        >
-                          No token creates found
+                  ) : (
+                    IBondingCurveFactory_Create.slice(0, 7).map((item: any) => (
+                      <TableRow
+                        key={item.id}
+                        className={`enhanced-table-row ${
+                          isInitialLoad
+                            ? 'table-row-staggered'
+                            : 'table-row-enter'
+                        }`}
+                      >
+                        <TableCell className="py-4 whitespace-nowrap">
+                          <div className="font-medium text-foreground flex flex-col gap-2">
+                            <Badge
+                              variant="secondary"
+                              className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-foreground font-bold text-xs px-2 py-1 rounded-md border border-blue-400/30 w-fit shadow-sm"
+                            >
+                              {item.symbol || 'N/A'}
+                            </Badge>
+                            <span className="text-sm">
+                              {item.name && item.name.length > 20
+                                ? `${item.name.substring(0, 20)}...`
+                                : item.name || 'N/A'}
+                            </span>
+                          </div>
                         </TableCell>
-                      </TableRow>
-                    ) : (
-                      IBondingCurveFactory_Create.slice(0, 10).map(
-                        (item: any) => (
-                          <TableRow
-                            key={item.id}
-                            className={`enhanced-table-row ${
-                              isInitialLoad
-                                ? 'table-row-staggered'
-                                : 'table-row-enter'
-                            }`}
+                        <TableCell className="py-4 whitespace-nowrap">
+                          <div className="font-mono text-xs text-muted-foreground">
+                            {formatAddress(item.owner)}
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-4 whitespace-nowrap">
+                          <Link
+                            href={`${MONAD_TESTNET_SCAN_URL}/address/${item.token}`}
+                            target="_blank"
+                            className="tx-link inline-flex items-center gap-2 text-xs text-accent hover:text-accent/80"
                           >
-                            <TableCell className="py-4">
-                              <div className="font-medium text-foreground">
-                                {item.name || 'N/A'}
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-4">
-                              <Badge variant="secondary">
-                                {item.symbol || 'N/A'}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="py-4">
-                              <div className="font-mono text-xs text-muted-foreground">
-                                {formatAddress(item.owner)}
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-4">
-                              <div className="font-mono text-xs text-muted-foreground">
-                                {formatAddress(item.token)}
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-4">
-                              <div className="text-sm text-muted-foreground">
-                                {formatTimeAgo(item.db_write_timestamp)}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ),
-                      )
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="listings" className="mt-6">
-          <Card className="custom-card py-0 gap-0">
-            <CardHeader className="bg-muted/20 px-4 py-4 gap-0 border-b border-border/50 !pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base font-display font-medium text-foreground">
-                  Bonding Curve Listings
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-muted-foreground">Live</span>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="enhanced-table px-2">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="mx-auto border-b border-border/50 bg-muted/10">
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Token
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Curve
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Pair
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Token Amount
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Native Amount
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Listed
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {BondingCurve_Listing.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={6}
-                          className="text-center text-muted-foreground py-8"
-                        >
-                          No listings found
+                            <span className="font-mono">
+                              {formatAddress(item.token)}
+                            </span>
+                            <ArrowUpRight className="w-3 h-3" />
+                          </Link>
+                        </TableCell>
+                        <TableCell className="py-4 whitespace-nowrap">
+                          <div className="text-sm text-muted-foreground">
+                            {formatTimeAgo(item.db_write_timestamp)}
+                          </div>
                         </TableCell>
                       </TableRow>
-                    ) : (
-                      BondingCurve_Listing.map((item: any) => (
-                        <TableRow
-                          key={item.id}
-                          className={`enhanced-table-row ${
-                            isInitialLoad
-                              ? 'table-row-staggered'
-                              : 'table-row-enter'
-                          }`}
-                        >
-                          <TableCell className="py-4">
-                            <div className="font-mono text-xs text-muted-foreground">
-                              {formatAddress(item.token)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <div className="font-mono text-xs text-muted-foreground">
-                              {formatAddress(item.curve)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <div className="font-mono text-xs text-muted-foreground">
-                              {formatAddress(item.pair)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <div className="volume-text text-sm">
-                              {formatNumber(item.listingTokenAmount)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <div className="volume-text text-sm">
-                              {formatNumber(item.listingWNativeAmount)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <div className="text-sm text-muted-foreground">
-                              {formatTimeAgo(item.db_write_timestamp)}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
 
-        <TabsContent value="syncs" className="mt-6">
-          <Card className="custom-card py-0 gap-0">
-            <CardHeader className="bg-muted/20 px-4 py-4 gap-0 border-b border-border/50 !pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base font-display font-medium text-foreground">
-                  Bonding Curve Syncs
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-muted-foreground">Live</span>
-                </div>
+        <Card className="flex-1 min-w-0 custom-card py-0 gap-0 max-w-80">
+          <CardHeader className="bg-muted/20 px-4 py-4 gap-0 border-b border-border/50 !pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-display font-medium text-foreground">
+                Bonding Curve Syncs
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-muted-foreground">Live</span>
               </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="enhanced-table px-2">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="mx-auto border-b border-border/50 bg-muted/10">
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Token
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Reserve Token
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Reserve Native
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Virtual Native
-                      </TableHead>
-                      <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Synced
-                      </TableHead>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="enhanced-table px-2 overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="mx-auto border-b border-border/50 bg-muted/10">
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap text-left">
+                      Token
+                    </TableHead>
+                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap text-right">
+                      Synced
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {BondingCurve_Sync.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className="text-center text-muted-foreground py-8"
+                      >
+                        No syncs found
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {BondingCurve_Sync.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={5}
-                          className="text-center text-muted-foreground py-8"
-                        >
-                          No syncs found
+                  ) : (
+                    BondingCurve_Sync.slice(0, 7).map((item: any) => (
+                      <TableRow
+                        key={item.id}
+                        className={`enhanced-table-row ${
+                          isInitialLoad
+                            ? 'table-row-staggered'
+                            : 'table-row-enter'
+                        }`}
+                      >
+                        <TableCell className="py-4 whitespace-nowrap">
+                          <Link
+                            href={`${MONAD_TESTNET_SCAN_URL}/address/${item.token}`}
+                            target="_blank"
+                            className="tx-link inline-flex items-center gap-2 text-xs text-accent hover:text-accent/80"
+                          >
+                            <span className="font-mono">
+                              {formatAddress(item.token)}
+                            </span>
+                            <ArrowUpRight className="w-3 h-3" />
+                          </Link>
+                        </TableCell>
+                        <TableCell className="py-4 whitespace-nowrap text-right">
+                          <div className="text-sm text-muted-foreground">
+                            {formatTimeAgo(item.db_write_timestamp)}
+                          </div>
                         </TableCell>
                       </TableRow>
-                    ) : (
-                      BondingCurve_Sync.map((item: any) => (
-                        <TableRow
-                          key={item.id}
-                          className={`enhanced-table-row ${
-                            isInitialLoad
-                              ? 'table-row-staggered'
-                              : 'table-row-enter'
-                          }`}
-                        >
-                          <TableCell className="py-4">
-                            <div className="font-mono text-xs text-muted-foreground">
-                              {formatAddress(item.token)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <div className="volume-text text-sm">
-                              {formatNumber(item.reserveToken)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <div className="volume-text text-sm">
-                              {formatNumber(item.reserveWNative)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <div className="volume-text text-sm">
-                              {formatNumber(item.virtualWNative)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <div className="text-sm text-muted-foreground">
-                              {formatTimeAgo(item.db_write_timestamp)}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
