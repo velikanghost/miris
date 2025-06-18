@@ -14,18 +14,14 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Miris - Advanced Protocol Analytics',
-  description:
-    'Real-time protocol analytics with cross-chain interoperability insights, advanced yield optimization, and comprehensive risk assessment.',
+  title: 'Miris - See monad',
+  description: 'Real-time monad testnet-1 visualizer',
   keywords: [
     'crypto',
     'cryptocurrency',
     'DeFi',
     'protocol analytics',
     'dashboard',
-    'GraphQL',
-    'Apollo',
-    'Next.js',
   ],
   authors: [{ name: 'Miris Analytics' }],
 }
