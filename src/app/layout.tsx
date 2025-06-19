@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Zen_Dots } from 'next/font/google'
 import './globals.css'
 import ApolloProviderWrapper from '@/components/providers/ApolloProvider'
 
@@ -11,6 +11,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+})
+
+const zenDots = Zen_Dots({
+  variable: '--font-zen-dots',
+  subsets: ['latin'],
+  weight: '400',
 })
 
 export const metadata: Metadata = {
@@ -39,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full dark" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-background`}
+        className={`${geistSans.variable} ${geistMono.variable} ${zenDots.variable} antialiased h-full bg-background`}
       >
         <div className="">
           <ApolloProviderWrapper>{children}</ApolloProviderWrapper>

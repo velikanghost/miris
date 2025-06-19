@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@apollo/client'
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   KuruOrderBook_Trade,
   NadFun_Combined,
@@ -41,87 +41,7 @@ export default function Dashboard() {
     document.documentElement.classList.toggle('dark')
   }
 
-  // Interactive animation state
-  const [portPosition, setPortPosition] = useState({
-    top: '30%',
-  })
-  const [isPortHovered, setIsPortHovered] = useState(false)
-  const animationFrameRef = useRef<number>(0)
-  const portRef = useRef<HTMLDivElement>(null)
   const danceRef = useRef<HTMLDivElement>(null)
-
-  // Animation loop
-  useEffect(() => {
-    const checkCollision = () => {
-      if (!portRef.current || !danceRef.current) return false
-
-      const portRect = portRef.current.getBoundingClientRect()
-      const danceRect = danceRef.current.getBoundingClientRect()
-
-      return !(
-        portRect.right < danceRect.left ||
-        portRect.left > danceRect.right ||
-        portRect.bottom < danceRect.top ||
-        portRect.top > danceRect.bottom
-      )
-    }
-
-    const getDancePosition = () => {
-      if (!danceRef.current) return { centerY: 0 }
-      const rect = danceRef.current.getBoundingClientRect()
-      return {
-        centerY: rect.top + rect.height / 4,
-      }
-    }
-
-    const movePortAway = () => {
-      if (isPortHovered) return
-
-      const dancePos = getDancePosition()
-      const windowHeight = window.innerHeight
-      const safeDistance = 120
-      let newTop =
-        (parseFloat(portPosition.top.replace('%', '')) / 100) * windowHeight
-
-      if (Math.abs(dancePos.centerY - newTop) < safeDistance) {
-        if (dancePos.centerY > windowHeight / 2) {
-          newTop = Math.max(50, dancePos.centerY - safeDistance)
-        } else {
-          newTop = Math.min(windowHeight - 100, dancePos.centerY + safeDistance)
-        }
-
-        if (newTop < 100) {
-          newTop = windowHeight - 120
-        }
-        if (newTop > windowHeight - 120) {
-          newTop = 80
-        }
-
-        setPortPosition({
-          top: `${(newTop / windowHeight) * 100}%`,
-        })
-      }
-    }
-
-    const animate = () => {
-      if (checkCollision() && isPortHovered) {
-        alert('anagoooo')
-        setIsPortHovered(false)
-      } else {
-        movePortAway()
-      }
-
-      animationFrameRef.current = requestAnimationFrame(animate)
-    }
-
-    animationFrameRef.current = requestAnimationFrame(animate)
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
-      }
-    }
-  }, [portPosition, isPortHovered])
 
   const {
     data: orderBookData,
@@ -289,7 +209,7 @@ export default function Dashboard() {
               </div>
 
               <div>
-                <h1 className="text-3xl font-display text-gradient">Miris</h1>
+                <h1 className="text-3xl font-zen-dots text-gradient">Miris</h1>
                 <TypingText
                   text="Real-time visualizer"
                   className="text-xs text-muted-foreground"
@@ -411,22 +331,10 @@ export default function Dashboard() {
         <img src="/1000012826.gif" alt="Miris" className="gif" />
       </div>
 
-      {/* Interactive dance and port elements */}
+      {/* Interactive dance element */}
       <div className="right">
         <div ref={danceRef} className="dance-container">
           <img src="/dance.gif" alt="Dance" className="dance-gif" />
-        </div>
-
-        <div
-          ref={portRef}
-          className={`port-container ${isPortHovered ? 'fixed' : ''}`}
-          style={{
-            top: portPosition.top,
-          }}
-          onMouseEnter={() => setIsPortHovered(true)}
-          onMouseLeave={() => setIsPortHovered(false)}
-        >
-          <img src="/port.png" alt="Port" className="port-image" />
         </div>
       </div>
     </div>
