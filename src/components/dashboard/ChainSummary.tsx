@@ -1,6 +1,4 @@
 'use client'
-
-import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Activity, Zap, Box, Clock } from 'lucide-react'
 import Counter from '@/components/ui/animata/Counter'
@@ -45,143 +43,29 @@ interface ChainData {
   avg_block_fullness_pct: number
 }
 
-export default function ChainSummary() {
-  // SSE Real-time data
-  const [epochData, setEpochData] = useState<EpochData | null>(null)
-  const [recentBlocks, setRecentBlocks] = useState<BlockData[]>([])
-  const [isConnected, setIsConnected] = useState(false)
-  const [connectionError, setConnectionError] = useState<string | null>(null)
+interface ChainSummaryProps {
+  epochData: EpochData | null
+  recentBlocks: BlockData[]
+  isConnected: boolean
+  connectionError: string | null
+  realTimeTPS: number
+  realTimeBPS: number
+  avgBlockTime: number
+  httpData: ChainData | null
+  httpLoading: boolean
+}
 
-  // Calculated metrics
-  const [realTimeBPS] = useState(0)
-  const [avgBlockTime] = useState(0)
-
-  // Fallback HTTP data
-  const [httpData, setHttpData] = useState<ChainData | null>(null)
-  const [httpLoading, setHttpLoading] = useState(true)
-
-  // Track block timing for real-time calculations
-  //const [ setBlockTimes] = useState<number[]>([])
-
-  // Calculate TPS from recent blocks using useMemo
-  const realTimeTPS = useMemo(() => {
-    if (recentBlocks.length < 2) return 0
-
-    const recent5Blocks = recentBlocks.slice(0, 5)
-    const totalTxs = recent5Blocks.reduce((sum, block) => sum + block.NumTx, 0)
-    const timeSpan =
-      (new Date(recent5Blocks[0].Timestamp).getTime() -
-        new Date(recent5Blocks[recent5Blocks.length - 1].Timestamp).getTime()) /
-      1000
-
-    return timeSpan > 0 ? totalTxs / timeSpan : 0
-  }, [recentBlocks])
-
-  // SSE Connection
-  useEffect(() => {
-    let eventSource: EventSource | null = null
-
-    const connectSSE = () => {
-      try {
-        eventSource = new EventSource('https://proxy-tn.gmonads.com/sse')
-
-        eventSource.onopen = () => {
-          setIsConnected(true)
-          setConnectionError(null)
-        }
-
-        eventSource.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data)
-
-            switch (data.type) {
-              case 'latestEpoch':
-                setEpochData(data.payload)
-                break
-
-              case 'block_proposal':
-                const newBlock = data.payload
-                //const currentTime = new Date(newBlock.Timestamp).getTime()
-
-                // Update recent blocks
-                setRecentBlocks((prev) => [newBlock, ...prev.slice(0, 3)]) // Keep 4 most recent, show real data
-
-                // Update block times and calculate metrics in a single state update
-                // setBlockTimes((prev) => {
-                //   const newTimes = [...prev, currentTime].slice(-10) // Keep last 10 block times
-
-                //   // Calculate metrics with the new times and schedule updates
-                //   if (newTimes.length >= 2) {
-                //     const timeDiff =
-                //       (newTimes[newTimes.length - 1] - newTimes[0]) / 1000
-                //     const bps = (newTimes.length - 1) / timeDiff
-                //     const avgTime = timeDiff / (newTimes.length - 1)
-
-                //     // Use setTimeout to batch metric updates and prevent cascading renders
-                //     setTimeout(() => {
-                //       setRealTimeBPS(bps)
-                //       setAvgBlockTime(avgTime)
-                //     }, 0)
-                //   }
-
-                //   return newTimes
-                // })
-                break
-            }
-          } catch (error) {
-            console.warn('Failed to parse SSE data:', error)
-          }
-        }
-
-        eventSource.onerror = (error) => {
-          console.error('SSE connection error:', error)
-          setIsConnected(false)
-          setConnectionError('Connection lost, attempting to reconnect...')
-
-          // Attempt to reconnect after 5 seconds
-          setTimeout(() => {
-            if (eventSource) {
-              eventSource.close()
-            }
-            connectSSE()
-          }, 5000)
-        }
-      } catch (error) {
-        console.error('Failed to establish SSE connection:', error)
-        setConnectionError('Failed to connect to real-time data')
-      }
-    }
-
-    connectSSE()
-
-    return () => {
-      if (eventSource) {
-        eventSource.close()
-      }
-    }
-  }, []) // Remove calculateMetrics dependency
-
-  // Fallback HTTP polling
-  useEffect(() => {
-    const fetchHttpData = async () => {
-      try {
-        const response = await fetch('/api/gmonads')
-        const result = await response.json()
-        if (result.data && result.data.length > 0) {
-          setHttpData(result.data[0])
-        }
-      } catch (error) {
-        console.error('HTTP fallback failed:', error)
-      } finally {
-        setHttpLoading(false)
-      }
-    }
-
-    fetchHttpData()
-    const interval = setInterval(fetchHttpData, 60000)
-    return () => clearInterval(interval)
-  }, [])
-
+export default function ChainSummary({
+  epochData,
+  recentBlocks,
+  isConnected,
+  connectionError,
+  realTimeTPS,
+  realTimeBPS,
+  avgBlockTime,
+  httpData,
+  httpLoading,
+}: ChainSummaryProps) {
   const formatNumber = (num: number | string): string => {
     const n = typeof num === 'string' ? parseFloat(num) : num
     if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B'
@@ -192,67 +76,14 @@ export default function ChainSummary() {
 
   if (httpLoading && !epochData && recentBlocks.length === 0) {
     return (
-      <div className="w-full space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-accent via-primary to-secondary rounded-lg flex items-center justify-center">
-            <Activity className="w-4 h-4 text-primary-foreground animate-pulse" />
-          </div>
-          <h2 className="text-xl font-display text-gradient">
-            Chain Analytics
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="custom-card h-32 animate-pulse">
-              <div className="h-full bg-muted/30 rounded-lg"></div>
-            </div>
-          ))}
-        </div>
+      <div className="min-h-screen w-full flex items-center justify-center">
+        <img src="/anago_loading.gif" alt="Loading" className="w-24 h-24" />
       </div>
     )
   }
 
   return (
     <div className="w-full space-y-6">
-      {/* Header with connection status */}
-      {/* <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-8 h-8 bg-gradient-to-br from-accent via-primary to-secondary rounded-lg flex items-center justify-center shadow-lg">
-              <Activity className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <div className="absolute -inset-1 bg-gradient-to-r from-accent/20 to-secondary/20 rounded-lg blur opacity-60 animate-pulse-glow"></div>
-          </div>
-          <div>
-            <h2 className="text-xl font-display text-gradient">
-              Live Chain Analytics
-            </h2>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <motion.div
-            className="flex items-center gap-2"
-            animate={{ scale: isConnected ? 1 : 0.95 }}
-            transition={{ duration: 0.2 }}
-          >
-            {isConnected ? (
-              <Wifi className="w-4 h-4 text-green-500" />
-            ) : (
-              <WifiOff className="w-4 h-4 text-red-500" />
-            )}
-            <span className="text-xs text-muted-foreground">
-              {isConnected ? 'Live' : 'Reconnecting...'}
-            </span>
-          </motion.div>
-
-          {isConnected && (
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          )}
-        </div>
-      </div> */}
-
       {connectionError && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
