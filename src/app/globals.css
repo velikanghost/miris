@@ -671,47 +671,57 @@
 /* Screensaver bouncing animation - left side zigzag pattern */
 @keyframes screensaverBounce {
   0% {
-    left: 10px;
+    left: 20px;
     bottom: 20px;
     transform: translate(0, 0);
   }
-  12.5% {
-    left: 60px;
-    bottom: 15%;
-    transform: translate(0, 0);
-  }
-  25% {
-    left: 20px;
-    bottom: 30%;
-    transform: translate(0, 0);
-  }
-  37.5% {
+  10% {
     left: 80px;
-    bottom: 45%;
+    bottom: 20%;
+    transform: translate(0, 0);
+  }
+  20% {
+    left: 20px;
+    bottom: 35%;
+    transform: translate(0, 0);
+  }
+  30% {
+    left: 90px;
+    bottom: 50%;
+    transform: translate(0, 0);
+  }
+  40% {
+    left: 15px;
+    bottom: 65%;
     transform: translate(0, 0);
   }
   50% {
-    left: 15px;
-    bottom: 60%;
-    transform: translate(0, 0);
-  }
-  62.5% {
-    left: 70px;
-    bottom: 75%;
-    transform: translate(0, 0);
-  }
-  75% {
-    left: 30px;
+    left: 85px;
     bottom: calc(100% - 140px);
     transform: translate(0, 0);
   }
-  87.5% {
-    left: 90px;
-    bottom: 80%;
+  60% {
+    left: 25px;
+    bottom: 65%;
+    transform: translate(0, 0);
+  }
+  70% {
+    left: 80px;
+    bottom: 50%;
+    transform: translate(0, 0);
+  }
+  80% {
+    left: 30px;
+    bottom: 35%;
+    transform: translate(0, 0);
+  }
+  90% {
+    left: 75px;
+    bottom: 20%;
     transform: translate(0, 0);
   }
   100% {
-    left: 10px;
+    left: 20px;
     bottom: 20px;
     transform: translate(0, 0);
   }
@@ -734,31 +744,39 @@
   /* Adjust screensaver animation for mobile */
   @keyframes screensaverBounce {
     0% {
-      left: 10px;
+      left: 15px;
       bottom: 15px;
     }
-    16.7% {
-      left: 50px;
+    12.5% {
+      left: 60px;
       bottom: 25%;
     }
-    33.3% {
+    25% {
       left: 15px;
-      bottom: 50%;
+      bottom: 45%;
+    }
+    37.5% {
+      left: 70px;
+      bottom: 65%;
     }
     50% {
-      left: 70px;
-      bottom: 70%;
-    }
-    66.7% {
-      left: 25px;
+      left: 20px;
       bottom: calc(100% - 100px);
     }
-    83.3% {
-      left: 80px;
-      bottom: 60%;
+    62.5% {
+      left: 65px;
+      bottom: 65%;
+    }
+    75% {
+      left: 20px;
+      bottom: 45%;
+    }
+    87.5% {
+      left: 55px;
+      bottom: 25%;
     }
     100% {
-      left: 10px;
+      left: 15px;
       bottom: 15px;
     }
   }
