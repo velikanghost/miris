@@ -245,93 +245,88 @@ export const Monorail_Pools = gql`
   }
 `
 
-export const Amertis_Swap = gql`
-  query Amertis_Swap {
-    Swap(order_by: { db_write_timestamp: desc }) {
-      _amountIn
-      _amountOut
-      _tokenIn
-      _tokenOut
-      db_write_timestamp
-      from
-      timeStamp
+// New DEX queries for combined indexer
+export const Ambient_CrocSwap = gql`
+  query Ambient_CrocSwap {
+    Ambient_CrocSwap {
       id
+      base
+      baseFlow
+      inBaseQty
+      isBuy
+      limitPrice
+      minOut
+      poolIdx
+      qty
+      quote
+      quoteFlow
+      reserveFlags
+      tip
     }
   }
 `
 
-export const Monorail_SwapEvent = gql`
-  query Monorail_SwapEvent {
-    SwapEvent(order_by: { db_write_timestamp: desc }) {
+export const Clober_Swap = gql`
+  query Clober_Swap {
+    Clober_Swap {
       id
-      db_write_timestamp
       amountIn
       amountOut
-      blockNumber
-      exchangeName
-      exchangeAddress
-      fee
-      gasUsed
-      gasPrice
-      timestamp
-      tokenInAddress
-      tokenOutAddress
-      transactionHash
-      userAddress
+      inToken
+      method
+      outToken
+      router
+      user
     }
   }
 `
 
-// Staking queries for AprMONVault and MagmaStaking
-export const AprMONVault_Deposit = gql`
-  query AprMONVault_Deposit {
-    AprMONVault_Deposit(order_by: { db_write_timestamp: desc }) {
+// New Staking queries for combined indexer
+export const AprMon_Deposit = gql`
+  query AprMon_Deposit {
+    AprMon_Deposit {
       id
-      db_write_timestamp
+      assets
+      owner
       sender
       shares
-      owner
     }
   }
 `
 
-export const MagmaStaking_Deposit = gql`
-  query MagmaStaking_Deposit {
-    MagmaStaking_Deposit(order_by: { db_write_timestamp: desc }) {
+export const AprMon_Redeem = gql`
+  query AprMon_Redeem {
+    AprMon_Redeem {
       id
-      db_write_timestamp
-      depositor
+      assets
+      shares
+      controller
+      fee
+      receiver
+      requestId
+    }
+  }
+`
+
+export const Magma_Deposit = gql`
+  query Magma_Deposit {
+    Magma_Deposit {
+      id
       amount
+      depositor
       gMonMinted
       referralId
     }
   }
 `
 
-// Withdrawal queries for AprMONVault and MagmaStaking
-export const AprMONVault_Redeem = gql`
-  query AprMONVault_Redeem {
-    AprMONVault_Redeem(order_by: { db_write_timestamp: desc }) {
+export const Magma_Withdraw = gql`
+  query Magma_Withdraw {
+    Magma_Withdraw {
       id
-      db_write_timestamp
-      assets
-      controller
-      fee
-      receiver
-      requestId
-      shares
-    }
-  }
-`
-
-export const MagmaStaking_Withdraw = gql`
-  query MagmaStaking_Withdraw {
-    MagmaStaking_Withdraw(order_by: { db_write_timestamp: desc }) {
-      id
-      db_write_timestamp
-      gMonBurned
       amount
       withdrawer
+      gMonBurned
     }
   }
 `

@@ -11,50 +11,51 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { formatAddress, formatNumber, formatTimeAgo } from '@/lib/helpers'
+import {
+  formatAddress,
+  formatEther,
+  formatNumber,
+  formatPrice,
+} from '@/lib/helpers'
 import { Heart } from 'lucide-react'
 
-interface AprMONVaultDeposit {
+interface AprMonDeposit {
   id: string
-  db_write_timestamp: string
+  assets: string
+  owner: string
   sender: string
   shares: string
-  owner: string
 }
 
-interface MagmaStakingDeposit {
+interface MagmaDeposit {
   id: string
-  db_write_timestamp: string
-  depositor: string
   amount: string
+  depositor: string
   gMonMinted: string
   referralId: string
 }
 
-interface AprMONVaultRedeem {
+interface AprMonRedeem {
   id: string
-  db_write_timestamp: string
   assets: string
+  shares: string
   controller: string
   fee: string
   receiver: string
   requestId: string
-  shares: string
 }
 
-interface MagmaStakingWithdraw {
+interface MagmaWithdraw {
   id: string
-  db_write_timestamp: string
-  gMonBurned: string
   amount: string
   withdrawer: string
+  gMonBurned: string
 }
 
 // Normalized deposit interface for display
 interface NormalizedDeposit {
   id: string
   protocol: string
-  db_write_timestamp: string
   depositor: string
   amount: number
   originalAmount: string
@@ -64,115 +65,98 @@ interface NormalizedDeposit {
 interface NormalizedWithdrawal {
   id: string
   protocol: string
-  db_write_timestamp: string
   withdrawer: string
   amount: number
   originalAmount: string
 }
 
 interface StakingTableProps {
-  aprMONVaultData?: {
-    AprMONVault_Deposit?: AprMONVaultDeposit[]
+  aprMonDepositData?: {
+    AprMon_Deposit?: AprMonDeposit[]
   }
-  magmaStakingData?: {
-    MagmaStaking_Deposit?: MagmaStakingDeposit[]
+  magmaDepositData?: {
+    Magma_Deposit?: MagmaDeposit[]
   }
-  aprMONVaultRedeemData?: {
-    AprMONVault_Redeem?: AprMONVaultRedeem[]
+  aprMonRedeemData?: {
+    AprMon_Redeem?: AprMonRedeem[]
   }
-  magmaStakingWithdrawData?: {
-    MagmaStaking_Withdraw?: MagmaStakingWithdraw[]
+  magmaWithdrawData?: {
+    Magma_Withdraw?: MagmaWithdraw[]
   }
 }
 
 export default function StakingTable({
-  aprMONVaultData,
-  magmaStakingData,
-  aprMONVaultRedeemData,
-  magmaStakingWithdrawData,
+  aprMonDepositData,
+  magmaDepositData,
+  aprMonRedeemData,
+  magmaWithdrawData,
 }: StakingTableProps) {
-  const aprData = aprMONVaultData?.AprMONVault_Deposit || []
-  const magmaData = magmaStakingData?.MagmaStaking_Deposit || []
-  const aprRedeemData = aprMONVaultRedeemData?.AprMONVault_Redeem || []
-  const magmaWithdrawData =
-    magmaStakingWithdrawData?.MagmaStaking_Withdraw || []
+  const aprData = aprMonDepositData?.AprMon_Deposit || []
+  const magmaData = magmaDepositData?.Magma_Deposit || []
+  const aprRedeemData = aprMonRedeemData?.AprMon_Redeem || []
+  const magmaWithdraws = magmaWithdrawData?.Magma_Withdraw || []
 
   // Normalize and combine deposit data
   const allDeposits = useMemo(() => {
-    // Normalize AprMONVault data
+    // Normalize AprMon data
     const normalizedAprDeposits: NormalizedDeposit[] = aprData.map(
       (deposit) => ({
         id: deposit.id,
-        protocol: 'AprMON Vault',
-        db_write_timestamp: deposit.db_write_timestamp,
+        protocol: 'AprMon',
         depositor: deposit.sender,
         amount: parseFloat(deposit.shares) || 0,
         originalAmount: deposit.shares,
       }),
     )
 
-    // Normalize MagmaStaking data
+    // Normalize Magma data
     const normalizedMagmaDeposits: NormalizedDeposit[] = magmaData.map(
       (deposit) => ({
         id: deposit.id,
-        protocol: 'Magma Staking',
-        db_write_timestamp: deposit.db_write_timestamp,
+        protocol: 'Magma',
         depositor: deposit.depositor,
         amount: parseFloat(deposit.amount) || 0,
         originalAmount: deposit.amount,
       }),
     )
 
-    // Combine and sort by timestamp (most recent first)
-    return [...normalizedAprDeposits, ...normalizedMagmaDeposits].sort(
-      (a, b) => {
-        const timestampA = new Date(a.db_write_timestamp).getTime() || 0
-        const timestampB = new Date(b.db_write_timestamp).getTime() || 0
-        return timestampB - timestampA
-      },
-    )
+    // Combine data (no sorting since we don't have timestamps)
+    return [...normalizedAprDeposits, ...normalizedMagmaDeposits]
   }, [aprData, magmaData])
 
   // Normalize and combine withdrawal data
   const allWithdrawals = useMemo(() => {
-    // Normalize AprMONVault redeem data
+    // Normalize AprMon redeem data
     const normalizedAprRedeems: NormalizedWithdrawal[] = aprRedeemData.map(
       (redeem) => ({
         id: redeem.id,
-        protocol: 'AprMON Vault',
-        db_write_timestamp: redeem.db_write_timestamp,
+        protocol: 'AprMon',
         withdrawer: redeem.receiver,
         amount: parseFloat(redeem.shares) || 0,
         originalAmount: redeem.shares,
       }),
     )
 
-    // Normalize MagmaStaking withdraw data
-    const normalizedMagmaWithdraws: NormalizedWithdrawal[] =
-      magmaWithdrawData.map((withdraw) => ({
+    // Normalize Magma withdraw data
+    const normalizedMagmaWithdraws: NormalizedWithdrawal[] = magmaWithdraws.map(
+      (withdraw) => ({
         id: withdraw.id,
-        protocol: 'Magma Staking',
-        db_write_timestamp: withdraw.db_write_timestamp,
+        protocol: 'Magma',
         withdrawer: withdraw.withdrawer,
         amount: parseFloat(withdraw.amount) || 0,
         originalAmount: withdraw.amount,
-      }))
-
-    // Combine and sort by timestamp (most recent first)
-    return [...normalizedAprRedeems, ...normalizedMagmaWithdraws].sort(
-      (a, b) => {
-        const timestampA = new Date(a.db_write_timestamp).getTime() || 0
-        const timestampB = new Date(b.db_write_timestamp).getTime() || 0
-        return timestampB - timestampA
-      },
+      }),
     )
+
+    // Combine data (no sorting since we don't have timestamps)
+    return [...normalizedAprRedeems, ...normalizedMagmaWithdraws]
   }, [aprRedeemData, magmaWithdrawData])
 
   const getProtocolBadgeColor = (protocol: string) => {
     const colors: { [key: string]: string } = {
-      'AprMON Vault':
+      AprMon:
         'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200',
-      'Magma Staking':
+      Magma:
         'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200',
       default:
         'bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-200',
@@ -233,9 +217,6 @@ export default function StakingTable({
                     <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                       Amount
                     </TableHead>
-                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
-                      Time
-                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -260,13 +241,7 @@ export default function StakingTable({
 
                       <TableCell className="py-4 whitespace-nowrap">
                         <div className="font-medium text-sm text-foreground">
-                          {formatNumber(deposit.amount, true, 18)}
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="py-4 whitespace-nowrap">
-                        <div className="text-sm text-foreground">
-                          {formatTimeAgo(deposit.db_write_timestamp)}
+                          {formatEther(deposit.amount)}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -304,9 +279,6 @@ export default function StakingTable({
                     <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                       Amount
                     </TableHead>
-                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
-                      Time
-                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -331,13 +303,7 @@ export default function StakingTable({
 
                       <TableCell className="py-4 whitespace-nowrap">
                         <div className="font-medium text-sm text-foreground">
-                          {formatNumber(withdrawal.amount, true, 18)}
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="py-4 whitespace-nowrap">
-                        <div className="text-sm text-foreground">
-                          {formatTimeAgo(withdrawal.db_write_timestamp)}
+                          {formatEther(withdrawal.amount)}
                         </div>
                       </TableCell>
                     </TableRow>

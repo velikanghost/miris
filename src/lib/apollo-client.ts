@@ -57,6 +57,11 @@ const magmaStakingLink = createHttpLink({
   uri: 'https://indexer.dev.hyperindex.xyz/b4c3cc3/v1/graphql',
 })
 
+// Create HTTP link for Combined DEX and Staking indexer (new endpoint)
+const combinedDexStakingLink = createHttpLink({
+  uri: 'http://localhost:8080/v1/graphql',
+})
+
 // Split link based on operation name to route to different endpoints
 const splitLink = split(
   ({ query }) => {
@@ -64,26 +69,30 @@ const splitLink = split(
     const operationName =
       definition.kind === 'OperationDefinition' ? definition.name?.value : ''
 
-    // Route MagmaStaking queries to the tenth endpoint
+    // Route new combined DEX and Staking queries to the combined endpoint
     return (
-      operationName === 'MagmaStaking_Deposit' ||
-      operationName === 'MagmaStaking_Withdraw'
+      operationName === 'Ambient_CrocSwap' ||
+      operationName === 'Clober_Swap' ||
+      operationName === 'AprMon_Deposit' ||
+      operationName === 'AprMon_Redeem' ||
+      operationName === 'Magma_Deposit' ||
+      operationName === 'Magma_Withdraw'
     )
   },
-  magmaStakingLink, // Use MagmaStaking endpoint
+  combinedDexStakingLink, // Use combined DEX/Staking endpoint
   split(
     ({ query }) => {
       const definition = getMainDefinition(query)
       const operationName =
         definition.kind === 'OperationDefinition' ? definition.name?.value : ''
 
-      // Route AprMONVault queries to the ninth endpoint
+      // Route MagmaStaking queries to the tenth endpoint
       return (
-        operationName === 'AprMONVault_Deposit' ||
-        operationName === 'AprMONVault_Redeem'
+        operationName === 'MagmaStaking_Deposit' ||
+        operationName === 'MagmaStaking_Withdraw'
       )
     },
-    aprMONVaultLink, // Use AprMONVault endpoint
+    magmaStakingLink, // Use MagmaStaking endpoint
     split(
       ({ query }) => {
         const definition = getMainDefinition(query)
@@ -92,13 +101,13 @@ const splitLink = split(
             ? definition.name?.value
             : ''
 
-        // Route Amertis DEX queries to the eighth endpoint
-        return Boolean(
-          operationName?.includes('Amertis') ||
-            operationName?.includes('AmertisSwap'),
+        // Route AprMONVault queries to the ninth endpoint
+        return (
+          operationName === 'AprMONVault_Deposit' ||
+          operationName === 'AprMONVault_Redeem'
         )
       },
-      amertisDexLink, // Use Amertis DEX endpoint
+      aprMONVaultLink, // Use AprMONVault endpoint
       split(
         ({ query }) => {
           const definition = getMainDefinition(query)
@@ -107,13 +116,13 @@ const splitLink = split(
               ? definition.name?.value
               : ''
 
-          // Route Monorail DEX queries to the seventh endpoint
+          // Route Amertis DEX queries to the eighth endpoint
           return Boolean(
-            operationName?.includes('MonorailDex') ||
-              operationName?.includes('SwapEvent'),
+            operationName?.includes('Amertis') ||
+              operationName?.includes('AmertisSwap'),
           )
         },
-        monorailDexLink, // Use Monorail DEX endpoint
+        amertisDexLink, // Use Amertis DEX endpoint
         split(
           ({ query }) => {
             const definition = getMainDefinition(query)
@@ -122,13 +131,13 @@ const splitLink = split(
                 ? definition.name?.value
                 : ''
 
-            // Route Monorail queries to the sixth endpoint
+            // Route Monorail DEX queries to the seventh endpoint
             return Boolean(
-              operationName?.includes('Monorail') ||
-                operationName?.includes('Pool'),
+              operationName?.includes('MonorailDex') ||
+                operationName?.includes('SwapEvent'),
             )
           },
-          monorailLink, // Use monorail endpoint for pool queries
+          monorailDexLink, // Use Monorail DEX endpoint
           split(
             ({ query }) => {
               const definition = getMainDefinition(query)
@@ -137,15 +146,13 @@ const splitLink = split(
                   ? definition.name?.value
                   : ''
 
-              // Route nad.fun queries to the fifth endpoint
+              // Route Monorail queries to the sixth endpoint
               return Boolean(
-                operationName?.includes('NadFun') ||
-                  operationName?.includes('IBondingCurveFactory') ||
-                  operationName?.includes('BondingCurve') ||
-                  operationName?.includes('UniswapV2'),
+                operationName?.includes('Monorail') ||
+                  operationName?.includes('Pool'),
               )
             },
-            nadFunLink, // Use nad.fun endpoint for degen queries
+            monorailLink, // Use monorail endpoint for pool queries
             split(
               ({ query }) => {
                 const definition = getMainDefinition(query)
@@ -154,10 +161,15 @@ const splitLink = split(
                     ? definition.name?.value
                     : ''
 
-                // Route APR MON Staking queries to the fourth endpoint
-                return operationName === 'AprMonTVL1D'
+                // Route nad.fun queries to the fifth endpoint
+                return Boolean(
+                  operationName?.includes('NadFun') ||
+                    operationName?.includes('IBondingCurveFactory') ||
+                    operationName?.includes('BondingCurve') ||
+                    operationName?.includes('UniswapV2'),
+                )
               },
-              aprMonStakingLink, // Use APR MON staking endpoint for AprMonTVL1D queries
+              nadFunLink, // Use nad.fun endpoint for degen queries
               split(
                 ({ query }) => {
                   const definition = getMainDefinition(query)
@@ -166,20 +178,33 @@ const splitLink = split(
                       ? definition.name?.value
                       : ''
 
-                  // Route Wormhole Relayer queries to the third endpoint
-                  return Boolean(operationName?.includes('WormholeRelayer'))
+                  // Route APR MON Staking queries to the fourth endpoint
+                  return operationName === 'AprMonTVL1D'
                 },
-                wormholeRelayerLink, // Use wormhole relayer endpoint for WormholeRelayer queries
+                aprMonStakingLink, // Use APR MON staking endpoint for AprMonTVL1D queries
                 split(
                   ({ query }) => {
                     const definition = getMainDefinition(query)
-                    return (
-                      definition.kind === 'OperationDefinition' &&
-                      definition.name?.value === 'KuruDeployer_PumpingTime'
-                    )
+                    const operationName =
+                      definition.kind === 'OperationDefinition'
+                        ? definition.name?.value
+                        : ''
+
+                    // Route Wormhole Relayer queries to the third endpoint
+                    return Boolean(operationName?.includes('WormholeRelayer'))
                   },
-                  pumpingTimeLink, // Use pumping time endpoint for KuruDeployer_PumpingTime queries
-                  orderBookLink, // Use order book endpoint for all other queries
+                  wormholeRelayerLink, // Use wormhole relayer endpoint for WormholeRelayer queries
+                  split(
+                    ({ query }) => {
+                      const definition = getMainDefinition(query)
+                      return (
+                        definition.kind === 'OperationDefinition' &&
+                        definition.name?.value === 'KuruDeployer_PumpingTime'
+                      )
+                    },
+                    pumpingTimeLink, // Use pumping time endpoint for KuruDeployer_PumpingTime queries
+                    orderBookLink, // Use order book endpoint for all other queries
+                  ),
                 ),
               ),
             ),

@@ -218,7 +218,7 @@ export const formatNumber = (
   } else if (rounded >= 0.01) {
     return `${Math.round(rounded * 10000) / 10000}`
   } else if (rounded > 0) {
-    return `${rounded.toExponential(2)}`
+    return `${rounded.toExponential(4)}`
   }
 
   return '0'
@@ -243,4 +243,16 @@ export const formatPrice = (num: number) => {
  */
 export const formatAddress = (address: string) => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`
+}
+
+export const formatEther = (num: number) => {
+  const val = num / 1e18
+
+  // If the number is very small (less than 0.000001), use scientific notation
+  if (Math.abs(val) < 0.000001 && val !== 0) {
+    return val.toExponential(6)
+  }
+
+  // For normal numbers, use fixed decimal places but remove trailing zeros
+  return val.toFixed(6).replace(/\.?0+$/, '')
 }

@@ -1,4 +1,9 @@
-import { formatTimeAgo, formatAddress } from '@/lib/helpers'
+import {
+  formatAddress,
+  formatEther,
+  formatNumber,
+  formatPrice,
+} from '@/lib/helpers'
 import { ArrowUpRight, Activity, Zap, ArrowRight } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Badge } from '../ui/badge'
@@ -16,60 +21,57 @@ import { useState, useMemo } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { useTokenData } from '@/lib/hooks/useTokenData'
 
-interface MonorailSwap {
+interface AmbientSwap {
   id: string
-  db_write_timestamp: number | string
-  amountIn: number
-  amountOut: number
-  tokenInAddress: string
-  tokenOutAddress: string
-  userAddress: string
-  exchangeName: string
-  exchangeAddress: string
-  fee: number
-  gasUsed: number
-  gasPrice: number
-  timestamp: number
-  transactionHash: string
+  base: string
+  baseFlow: string
+  inBaseQty: boolean
+  isBuy: boolean
+  limitPrice: string
+  minOut: string
+  poolIdx: string
+  qty: string
+  quote: string
+  quoteFlow: string
+  reserveFlags: string
+  tip: string
 }
 
-interface AmertisSwap {
+interface CloberSwap {
   id: string
-  db_write_timestamp: string
-  from: string
-  _tokenIn: string
-  _tokenOut: string
-  _amountIn: string
-  _amountOut: string
-  timeStamp: string
+  amountIn: string
+  amountOut: string
+  inToken: string
+  method: string
+  outToken: string
+  router: string
+  user: string
 }
 
 // Normalized swap interface for display
 interface NormalizedSwap {
   id: string
   transactionHash: string
-  db_write_timestamp: string
   exchangeName: string
   tokenIn: string
   tokenOut: string
   amountIn: number
   amountOut: number
   userAddress: string
-  timestamp: string
 }
 
 interface DexTableProps {
-  data: {
-    SwapEvent?: MonorailSwap[]
+  ambientData?: {
+    Ambient_CrocSwap?: AmbientSwap[]
   }
-  amertisData?: {
-    Swap?: AmertisSwap[]
+  cloberData?: {
+    Clober_Swap?: CloberSwap[]
   }
 }
 
-const DexTable = ({ data, amertisData }: DexTableProps) => {
-  const monorailDexSwaps = data?.SwapEvent || []
-  const amertisDexSwaps = amertisData?.Swap?.slice(0, 10) || []
+const DexTable = ({ ambientData, cloberData }: DexTableProps) => {
+  const ambientSwaps = ambientData?.Ambient_CrocSwap || []
+  const cloberSwaps = cloberData?.Clober_Swap || []
   const [isInitialLoad] = useState(true)
 
   // Token data hook for resolving addresses to names/symbols
@@ -79,46 +81,32 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
     error: tokenError,
   } = useTokenData()
 
-  // Normalize Monorail data
-  const normalizedMonorailSwaps: NormalizedSwap[] = monorailDexSwaps.map(
-    (swap) => ({
-      id: swap.id,
-      transactionHash: swap.transactionHash,
-      db_write_timestamp: String(swap.db_write_timestamp),
-      exchangeName: swap.exchangeName || 'Monorail',
-      tokenIn: swap.tokenInAddress,
-      tokenOut: swap.tokenOutAddress,
-      amountIn: swap.amountIn,
-      amountOut: swap.amountOut,
-      userAddress: swap.userAddress,
-      timestamp: String(swap.timestamp),
-    }),
-  )
+  // Normalize Ambient data
+  const normalizedAmbientSwaps: NormalizedSwap[] = ambientSwaps.map((swap) => ({
+    id: swap.id,
+    transactionHash: swap.id, // Use id as transaction hash
+    exchangeName: 'Ambient',
+    tokenIn: swap.isBuy ? swap.quote : swap.base,
+    tokenOut: swap.isBuy ? swap.base : swap.quote,
+    amountIn: parseFloat(swap.qty),
+    amountOut: parseFloat(swap.qty), // Simplified for now
+    userAddress: swap.id, // Use id as user address placeholder
+  }))
 
-  // Normalize Amertis data
-  const normalizedAmertisSwaps: NormalizedSwap[] = amertisDexSwaps.map(
-    (swap) => ({
-      id: swap.id,
-      transactionHash: swap.id, // id is the transaction hash for Amertis
-      db_write_timestamp: swap.db_write_timestamp,
-      exchangeName: 'Amertis',
-      tokenIn: swap._tokenIn,
-      tokenOut: swap._tokenOut,
-      amountIn: parseFloat(swap._amountIn),
-      amountOut: parseFloat(swap._amountOut),
-      userAddress: swap.from,
-      timestamp: swap.timeStamp,
-    }),
-  )
+  // Normalize Clober data
+  const normalizedCloberSwaps: NormalizedSwap[] = cloberSwaps.map((swap) => ({
+    id: swap.id,
+    transactionHash: swap.id, // Use id as transaction hash
+    exchangeName: 'Clober',
+    tokenIn: swap.inToken,
+    tokenOut: swap.outToken,
+    amountIn: parseFloat(swap.amountIn),
+    amountOut: parseFloat(swap.amountOut),
+    userAddress: swap.user,
+  }))
 
-  // Combine and sort by timestamp (most recent first)
-  const allSwaps = [...normalizedMonorailSwaps, ...normalizedAmertisSwaps].sort(
-    (a, b) => {
-      const timestampA = parseInt(a.timestamp) || 0
-      const timestampB = parseInt(b.timestamp) || 0
-      return timestampB - timestampA
-    },
-  )
+  // Combine data (no sorting since we don't have timestamps)
+  const allSwaps = [...normalizedAmbientSwaps, ...normalizedCloberSwaps]
 
   // Calculate swap statistics
   const stats = useMemo(() => {
@@ -140,20 +128,8 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
 
     // Pie chart data for exchange distribution
     const exchangeColors: { [key: string]: string } = {
-      'octoswap-v2': 'hsl(217, 91%, 60%)', // Blue
-      'monda-v2': 'hsl(271, 81%, 56%)', // Purple
-      'crystal-ob': 'hsl(142, 76%, 36%)', // Green
-      'uniswap-v3': 'hsl(25, 95%, 53%)', // Orange
-      'zkswap-v2': 'hsl(330, 81%, 60%)', // Pink
-      'bean-v2': 'hsl(45, 93%, 47%)', // Yellow
-      'monad-wrapper': 'hsl(195, 85%, 50%)', // Cyan
-      'kuru-ob': 'hsl(15, 86%, 55%)', // Red-Orange
-      'madness-v2': 'hsl(255, 75%, 65%)', // Indigo
-      'uniswap-v2': 'hsl(180, 70%, 50%)', // Teal
-      'pancakeswap-v2': 'hsl(120, 65%, 55%)', // Lime
-      amertis: 'hsl(300, 70%, 60%)', // Violet
-      'atlantis-v2': 'hsl(200, 85%, 60%)', // Sky Blue
-      'nadfun-v2': 'hsl(350, 80%, 65%)', // Coral
+      Ambient: 'hsl(217, 91%, 60%)', // Blue
+      Clober: 'hsl(142, 76%, 36%)', // Green
     }
 
     const pieData = Object.entries(exchangeCounts).map(([exchange, count]) => ({
@@ -186,33 +162,10 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
 
   const getExchangeBadgeColor = (exchangeName: string) => {
     const colors: { [key: string]: string } = {
-      'octoswap-v2':
+      Ambient:
         'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200',
-      'crystal-ob':
+      Clober:
         'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200',
-      'monda-v2':
-        'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200',
-      'uniswap-v3':
-        'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-200',
-      'zkswap-v2':
-        'bg-pink-100 text-pink-800 dark:bg-pink-900/50 dark:text-pink-200',
-      'bean-v2':
-        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200',
-      'monad-wrapper':
-        'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-200',
-      'kuru-ob': 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200',
-      'madness-v2':
-        'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200',
-      'uniswap-v2':
-        'bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-200',
-      'pancakeswap-v2':
-        'bg-lime-100 text-lime-800 dark:bg-lime-900/50 dark:text-lime-200',
-      amertis:
-        'bg-violet-100 text-violet-800 dark:bg-violet-900/50 dark:text-violet-200',
-      'atlantis-v2':
-        'bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-200',
-      'nadfun-v2':
-        'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-200',
       default:
         'bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-200',
     }
@@ -291,12 +244,9 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
                     {/* <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                   User
                     </TableHead> */}
-                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
-                      Time
-                    </TableHead>
-                    <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                    {/* <TableHead className="font-display text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                       Transaction
-                    </TableHead>
+                    </TableHead> */}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -331,27 +281,22 @@ const DexTable = ({ data, amertisData }: DexTableProps) => {
 
                       <TableCell className="py-4 whitespace-nowrap">
                         <div className="font-mono text-xs text-muted-foreground">
-                          {formatAddress(swap.userAddress)}
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-4 whitespace-nowrap">
-                        <div className="text-sm text-foreground">
-                          {formatTimeAgo(swap.db_write_timestamp)}
+                          {formatEther(swap.amountOut)}
                         </div>
                       </TableCell>
 
-                      <TableCell className="py-4 whitespace-nowrap">
+                      {/* <TableCell className="py-4 whitespace-nowrap">
                         <Link
                           href={`${MONAD_TESTNET_SCAN_URL}/tx/${swap.transactionHash}`}
                           target="_blank"
                           className="tx-link inline-flex items-center gap-2 text-sm text-accent hover:text-accent/80"
                         >
                           <span className="font-mono">
-                            {formatAddress(swap.transactionHash)}
+                            {formatAddress(swap.)}
                           </span>
                           <ArrowUpRight className="w-3 h-3" />
                         </Link>
-                      </TableCell>
+                      </TableCell> */}
                     </TableRow>
                   ))}
                 </TableBody>

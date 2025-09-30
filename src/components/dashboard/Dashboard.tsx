@@ -6,12 +6,12 @@ import {
   KuruOrderBook_Trade,
   NadFun_Combined,
   Monorail_Pools,
-  Monorail_SwapEvent,
-  Amertis_Swap,
-  AprMONVault_Deposit,
-  MagmaStaking_Deposit,
-  AprMONVault_Redeem,
-  MagmaStaking_Withdraw,
+  Ambient_CrocSwap,
+  Clober_Swap,
+  AprMon_Deposit,
+  Magma_Deposit,
+  AprMon_Redeem,
+  Magma_Withdraw,
 } from '@/lib/graphql/queries'
 import StakingTable from './StakingTable'
 import DegenTable from './DegenTable'
@@ -27,6 +27,7 @@ import {
   Sun,
   Github,
   BarChart3,
+  AlertTriangle,
 } from 'lucide-react'
 import ClobTable from './ClobTable'
 import DexTable from './DexTable'
@@ -35,6 +36,7 @@ import ChainSummary from './ChainSummary'
 import TypingText from '../ui/animata/TypingText'
 import Image from 'next/image'
 import { Badge } from '../ui/badge'
+import IndexerUnavailable from '../ui/IndexerUnavailable'
 
 // Data interfaces for ChainSummary
 interface EpochData {
@@ -128,68 +130,92 @@ export default function Dashboard() {
   } = useQuery(Monorail_Pools)
 
   const {
-    data: monorailDexData,
-    loading: monorailDexLoading,
-    error: monorailDexError,
-    startPolling: monorailDexStartPolling,
-  } = useQuery(Monorail_SwapEvent)
+    data: ambientDexData,
+    loading: ambientDexLoading,
+    error: ambientDexError,
+    startPolling: ambientDexStartPolling,
+  } = useQuery(Ambient_CrocSwap, {
+    pollInterval: 5000, // Poll every 5 seconds
+    notifyOnNetworkStatusChange: true,
+  })
 
   const {
-    data: amertisDexData,
-    loading: amertisDexLoading,
-    error: amertisDexError,
-    startPolling: amertisDexStartPolling,
-  } = useQuery(Amertis_Swap)
+    data: cloberDexData,
+    loading: cloberDexLoading,
+    error: cloberDexError,
+    startPolling: cloberDexStartPolling,
+  } = useQuery(Clober_Swap, {
+    pollInterval: 5000, // Poll every 5 seconds
+    notifyOnNetworkStatusChange: true,
+  })
 
   const {
-    data: aprMONVaultData,
-    loading: aprMONVaultLoading,
-    error: aprMONVaultError,
-    startPolling: aprMONVaultStartPolling,
-  } = useQuery(AprMONVault_Deposit)
+    data: aprMonDepositData,
+    loading: aprMonDepositLoading,
+    error: aprMonDepositError,
+    startPolling: aprMonDepositStartPolling,
+  } = useQuery(AprMon_Deposit, {
+    pollInterval: 5000, // Poll every 5 seconds
+    notifyOnNetworkStatusChange: true,
+  })
 
   const {
-    data: magmaStakingData,
-    loading: magmaStakingLoading,
-    error: magmaStakingError,
-    startPolling: magmaStakingStartPolling,
-  } = useQuery(MagmaStaking_Deposit)
+    data: magmaDepositData,
+    loading: magmaDepositLoading,
+    error: magmaDepositError,
+    startPolling: magmaDepositStartPolling,
+  } = useQuery(Magma_Deposit, {
+    pollInterval: 5000, // Poll every 5 seconds
+    notifyOnNetworkStatusChange: true,
+  })
 
   const {
-    data: aprMONVaultRedeemData,
-    loading: aprMONVaultRedeemLoading,
-    error: aprMONVaultRedeemError,
-    startPolling: aprMONVaultRedeemStartPolling,
-  } = useQuery(AprMONVault_Redeem)
+    data: aprMonRedeemData,
+    loading: aprMonRedeemLoading,
+    error: aprMonRedeemError,
+    startPolling: aprMonRedeemStartPolling,
+  } = useQuery(AprMon_Redeem, {
+    pollInterval: 5000, // Poll every 5 seconds
+    notifyOnNetworkStatusChange: true,
+  })
 
   const {
-    data: magmaStakingWithdrawData,
-    loading: magmaStakingWithdrawLoading,
-    error: magmaStakingWithdrawError,
-    startPolling: magmaStakingWithdrawStartPolling,
-  } = useQuery(MagmaStaking_Withdraw)
+    data: magmaWithdrawData,
+    loading: magmaWithdrawLoading,
+    error: magmaWithdrawError,
+    startPolling: magmaWithdrawStartPolling,
+  } = useQuery(Magma_Withdraw, {
+    pollInterval: 5000, // Poll every 5 seconds
+    notifyOnNetworkStatusChange: true,
+  })
 
-  const isLoading =
+  // Separate loading states for chain data vs Envio data
+  const chainDataLoading = httpLoading
+  const envioDataLoading =
     orderBookLoading ||
     degenLoading ||
     monorailLoading ||
-    monorailDexLoading ||
-    amertisDexLoading ||
-    aprMONVaultLoading ||
-    magmaStakingLoading ||
-    aprMONVaultRedeemLoading ||
-    magmaStakingWithdrawLoading ||
-    httpLoading
-  const hasError =
+    ambientDexLoading ||
+    cloberDexLoading ||
+    aprMonDepositLoading ||
+    magmaDepositLoading ||
+    aprMonRedeemLoading ||
+    magmaWithdrawLoading
+
+  // Check if any Envio indexers have errors
+  const hasEnvioError =
     orderBookError ||
     degenError ||
     monorailError ||
-    monorailDexError ||
-    amertisDexError ||
-    aprMONVaultError ||
-    magmaStakingError ||
-    aprMONVaultRedeemError ||
-    magmaStakingWithdrawError
+    ambientDexError ||
+    cloberDexError ||
+    aprMonDepositError ||
+    magmaDepositError ||
+    aprMonRedeemError ||
+    magmaWithdrawError
+
+  // Only show full page loading if chain data is loading
+  const isLoading = chainDataLoading
 
   // SSE Connection for chain data
   useEffect(() => {
@@ -276,22 +302,22 @@ export default function Dashboard() {
     orderBookStartPolling(3000)
     degenStartPolling(3000)
     monorailStartPolling(3000)
-    monorailDexStartPolling(3000)
-    amertisDexStartPolling(3000)
-    aprMONVaultStartPolling(3000)
-    magmaStakingStartPolling(3000)
-    aprMONVaultRedeemStartPolling(3000)
-    magmaStakingWithdrawStartPolling(3000)
+    ambientDexStartPolling(3000)
+    cloberDexStartPolling(3000)
+    aprMonDepositStartPolling(3000)
+    magmaDepositStartPolling(3000)
+    aprMonRedeemStartPolling(3000)
+    magmaWithdrawStartPolling(3000)
   }, [
     orderBookStartPolling,
     degenStartPolling,
     monorailStartPolling,
-    monorailDexStartPolling,
-    amertisDexStartPolling,
-    aprMONVaultStartPolling,
-    magmaStakingStartPolling,
-    aprMONVaultRedeemStartPolling,
-    magmaStakingWithdrawStartPolling,
+    ambientDexStartPolling,
+    cloberDexStartPolling,
+    aprMonDepositStartPolling,
+    magmaDepositStartPolling,
+    aprMonRedeemStartPolling,
+    magmaWithdrawStartPolling,
   ])
 
   if (isLoading) {
@@ -302,21 +328,20 @@ export default function Dashboard() {
     )
   }
 
-  if (hasError) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center geometric-pattern">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="w-16 h-16 bg-destructive/10 border-2 border-destructive/20 rounded-2xl flex items-center justify-center mx-auto">
-            <Activity className="w-8 h-8 text-destructive" />
-          </div>
-          <div className="space-y-4">
-            <h2 className="text-xl font-display text-foreground">
-              Joon wet himself
-            </h2>
-          </div>
-        </div>
-      </div>
-    )
+  // Remove the global error check - we'll handle Envio errors per tab
+
+  // Retry function for Envio queries
+  const retryEnvioQueries = () => {
+    // Refetch all Envio queries
+    if (orderBookError) orderBookStartPolling(3000)
+    if (degenError) degenStartPolling(3000)
+    if (monorailError) monorailStartPolling(3000)
+    if (ambientDexError) ambientDexStartPolling(3000)
+    if (cloberDexError) cloberDexStartPolling(3000)
+    if (aprMonDepositError) aprMonDepositStartPolling(3000)
+    if (magmaDepositError) magmaDepositStartPolling(3000)
+    if (aprMonRedeemError) aprMonRedeemStartPolling(3000)
+    if (magmaWithdrawError) magmaWithdrawStartPolling(3000)
   }
 
   return (
@@ -404,32 +429,55 @@ export default function Dashboard() {
                 value="orderbook"
                 className="flex items-center gap-1 px-2"
               >
-                <Activity className="w-3 h-3" />
+                {orderBookError ? (
+                  <AlertTriangle className="w-3 h-3 text-yellow-500" />
+                ) : (
+                  <Activity className="w-3 h-3" />
+                )}
                 <span className="hidden sm:inline">OrderBook</span>
               </TabsTrigger>
               <TabsTrigger value="dex" className="flex items-center gap-1 px-2">
-                <Shuffle className="w-3 h-3" />
+                {ambientDexError || cloberDexError ? (
+                  <AlertTriangle className="w-3 h-3 text-yellow-500" />
+                ) : (
+                  <Shuffle className="w-3 h-3" />
+                )}
                 <span className="hidden sm:inline">DEX</span>
               </TabsTrigger>
               <TabsTrigger
                 value="degen"
                 className="flex items-center gap-1 px-2"
               >
-                <Zap className="w-3 h-3" />
+                {degenError ? (
+                  <AlertTriangle className="w-3 h-3 text-yellow-500" />
+                ) : (
+                  <Zap className="w-3 h-3" />
+                )}
                 <span className="hidden sm:inline">Degen</span>
               </TabsTrigger>
               <TabsTrigger
                 value="monorail"
                 className="flex items-center gap-1 px-2"
               >
-                <Droplets className="w-3 h-3" />
+                {monorailError ? (
+                  <AlertTriangle className="w-3 h-3 text-yellow-500" />
+                ) : (
+                  <Droplets className="w-3 h-3" />
+                )}
                 <span className="hidden sm:inline">Pools</span>
               </TabsTrigger>
               <TabsTrigger
                 value="staking"
                 className="flex items-center gap-1 px-2"
               >
-                <Heart className="w-3 h-3" />
+                {aprMonDepositError ||
+                magmaDepositError ||
+                aprMonRedeemError ||
+                magmaWithdrawError ? (
+                  <AlertTriangle className="w-3 h-3 text-yellow-500" />
+                ) : (
+                  <Heart className="w-3 h-3" />
+                )}
                 <span className="hidden sm:inline">Staking</span>
               </TabsTrigger>
             </TabsList>
@@ -449,28 +497,74 @@ export default function Dashboard() {
             </TabsContent>
 
             <TabsContent value="orderbook" className="mt-6">
-              <ClobTable clobData={orderBookData} />
+              {orderBookError ? (
+                <IndexerUnavailable
+                  title="OrderBook Indexer Unavailable"
+                  description="The OrderBook indexer is temporarily unavailable. Trading data cannot be displayed at this time."
+                  onRetry={retryEnvioQueries}
+                />
+              ) : (
+                <ClobTable clobData={orderBookData} />
+              )}
             </TabsContent>
 
             <TabsContent value="dex" className="mt-6">
-              <DexTable data={monorailDexData} amertisData={amertisDexData} />
+              {ambientDexError || cloberDexError ? (
+                <IndexerUnavailable
+                  title="DEX Indexers Unavailable"
+                  description="The DEX indexer is temporarily unavailable. Swap data cannot be displayed at this time."
+                  onRetry={retryEnvioQueries}
+                />
+              ) : (
+                <DexTable
+                  ambientData={ambientDexData}
+                  cloberData={cloberDexData}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="degen" className="mt-6">
-              <DegenTable data={degenData} />
+              {degenError ? (
+                <IndexerUnavailable
+                  title="Degen Indexer Unavailable"
+                  description="The degen indexer is temporarily unavailable. Meme token data cannot be displayed at this time."
+                  onRetry={retryEnvioQueries}
+                />
+              ) : (
+                <DegenTable data={degenData} />
+              )}
             </TabsContent>
 
             <TabsContent value="monorail" className="mt-6">
-              <PoolTable data={monorailData} />
+              {monorailError ? (
+                <IndexerUnavailable
+                  title="Pool Indexer Unavailable"
+                  description="The pool indexer is temporarily unavailable. Pool data cannot be displayed at this time."
+                  onRetry={retryEnvioQueries}
+                />
+              ) : (
+                <PoolTable data={monorailData} />
+              )}
             </TabsContent>
 
             <TabsContent value="staking" className="mt-6">
-              <StakingTable
-                aprMONVaultData={aprMONVaultData}
-                magmaStakingData={magmaStakingData}
-                aprMONVaultRedeemData={aprMONVaultRedeemData}
-                magmaStakingWithdrawData={magmaStakingWithdrawData}
-              />
+              {aprMonDepositError ||
+              magmaDepositError ||
+              aprMonRedeemError ||
+              magmaWithdrawError ? (
+                <IndexerUnavailable
+                  title="Staking Indexers Unavailable"
+                  description="The staking indexer is temporarily unavailable. Staking data cannot be displayed at this time."
+                  onRetry={retryEnvioQueries}
+                />
+              ) : (
+                <StakingTable
+                  aprMonDepositData={aprMonDepositData}
+                  magmaDepositData={magmaDepositData}
+                  aprMonRedeemData={aprMonRedeemData}
+                  magmaWithdrawData={magmaWithdrawData}
+                />
+              )}
             </TabsContent>
           </Tabs>
         </div>
