@@ -1,10 +1,5 @@
-import {
-  formatAddress,
-  formatEther,
-  formatNumber,
-  formatPrice,
-} from '@/lib/helpers'
-import { ArrowUpRight, Activity, Zap, ArrowRight } from 'lucide-react'
+import { formatEther } from '@/lib/helpers'
+import { Activity, Zap, ArrowRight } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Badge } from '../ui/badge'
 import {
@@ -15,8 +10,6 @@ import {
   TableBody,
   TableCell,
 } from '../ui/table'
-import Link from 'next/link'
-import { MONAD_TESTNET_SCAN_URL } from '@/lib/utils'
 import { useState, useMemo } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { useTokenData } from '@/lib/hooks/useTokenData'

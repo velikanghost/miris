@@ -191,28 +191,6 @@ export default function Dashboard() {
 
   // Separate loading states for chain data vs Envio data
   const chainDataLoading = httpLoading
-  const envioDataLoading =
-    orderBookLoading ||
-    degenLoading ||
-    monorailLoading ||
-    ambientDexLoading ||
-    cloberDexLoading ||
-    aprMonDepositLoading ||
-    magmaDepositLoading ||
-    aprMonRedeemLoading ||
-    magmaWithdrawLoading
-
-  // Check if any Envio indexers have errors
-  const hasEnvioError =
-    orderBookError ||
-    degenError ||
-    monorailError ||
-    ambientDexError ||
-    cloberDexError ||
-    aprMonDepositError ||
-    magmaDepositError ||
-    aprMonRedeemError ||
-    magmaWithdrawError
 
   // Only show full page loading if chain data is loading
   const isLoading = chainDataLoading

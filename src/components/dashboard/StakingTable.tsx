@@ -11,12 +11,7 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import {
-  formatAddress,
-  formatEther,
-  formatNumber,
-  formatPrice,
-} from '@/lib/helpers'
+import { formatAddress, formatEther } from '@/lib/helpers'
 import { Heart } from 'lucide-react'
 
 interface AprMonDeposit {

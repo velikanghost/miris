@@ -59,7 +59,7 @@ const magmaStakingLink = createHttpLink({
 
 // Create HTTP link for Combined DEX and Staking indexer (new endpoint)
 const combinedDexStakingLink = createHttpLink({
-  uri: 'http://localhost:8080/v1/graphql',
+  uri: 'https://indexer.dev.hyperindex.xyz/6e268c4/v1/graphql',
 })
 
 // Split link based on operation name to route to different endpoints
