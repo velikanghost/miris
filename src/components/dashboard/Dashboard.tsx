@@ -110,28 +110,24 @@ export default function Dashboard() {
 
   const {
     data: orderBookData,
-    loading: orderBookLoading,
     error: orderBookError,
     startPolling: orderBookStartPolling,
   } = useQuery(KuruOrderBook_Trade)
 
   const {
     data: degenData,
-    loading: degenLoading,
     error: degenError,
     startPolling: degenStartPolling,
   } = useQuery(NadFun_Combined)
 
   const {
     data: monorailData,
-    loading: monorailLoading,
     error: monorailError,
     startPolling: monorailStartPolling,
   } = useQuery(Monorail_Pools)
 
   const {
     data: ambientDexData,
-    loading: ambientDexLoading,
     error: ambientDexError,
     startPolling: ambientDexStartPolling,
   } = useQuery(Ambient_CrocSwap, {
@@ -141,7 +137,6 @@ export default function Dashboard() {
 
   const {
     data: cloberDexData,
-    loading: cloberDexLoading,
     error: cloberDexError,
     startPolling: cloberDexStartPolling,
   } = useQuery(Clober_Swap, {
@@ -151,7 +146,6 @@ export default function Dashboard() {
 
   const {
     data: aprMonDepositData,
-    loading: aprMonDepositLoading,
     error: aprMonDepositError,
     startPolling: aprMonDepositStartPolling,
   } = useQuery(AprMon_Deposit, {
@@ -161,7 +155,6 @@ export default function Dashboard() {
 
   const {
     data: magmaDepositData,
-    loading: magmaDepositLoading,
     error: magmaDepositError,
     startPolling: magmaDepositStartPolling,
   } = useQuery(Magma_Deposit, {
@@ -171,7 +164,6 @@ export default function Dashboard() {
 
   const {
     data: aprMonRedeemData,
-    loading: aprMonRedeemLoading,
     error: aprMonRedeemError,
     startPolling: aprMonRedeemStartPolling,
   } = useQuery(AprMon_Redeem, {
@@ -181,7 +173,6 @@ export default function Dashboard() {
 
   const {
     data: magmaWithdrawData,
-    loading: magmaWithdrawLoading,
     error: magmaWithdrawError,
     startPolling: magmaWithdrawStartPolling,
   } = useQuery(Magma_Withdraw, {
